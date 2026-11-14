@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- The film (src/film/engine.ts, src/film/markup.ts, src/styles.css) is a verbatim port of the user's source HTML; never redesign or refactor it — edit only the specific data the user asks for. Why: the user requires the app to behave identically to that file.
+- src/styles.css must not import Tailwind; its preflight changes the film's layout. Why: exact visual parity with the source HTML.
+- The engine runs once on mount from src/routes/index.tsx over markup injected with dangerouslySetInnerHTML. Why: the original script owns and mutates that DOM directly.

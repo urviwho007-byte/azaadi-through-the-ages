@@ -1,23 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { FILM_MARKUP } from "@/film/markup";
+
+const TITLE = "गुमशुदा: आज़ादी — GUMSHUDA: AZAADI · एक काव्य-वृत्तचित्र";
+const DESC =
+  "A poetic documentary on Liberty, in the style of old Hindi cinema. Six reels, six voices — not one spoken. Only sound.";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESC },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESC },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+declare global {
+  interface Window {
+    __gumshudaStarted?: boolean;
+  }
+}
+
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  useEffect(() => {
+    // The film engine owns this DOM (exactly like the original page script); start it once.
+    if (window.__gumshudaStarted) return;
+    window.__gumshudaStarted = true;
+    import("@/film/engine").then((m) => m.runGumshuda());
+  }, []);
+
+  // Same DOM as the source HTML's <body>; display:contents keeps the wrapper out of layout.
+  return <div style={{ display: "contents" }} dangerouslySetInnerHTML={{ __html: FILM_MARKUP }} />;
 }
