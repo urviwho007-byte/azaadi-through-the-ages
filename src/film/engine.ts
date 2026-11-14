@@ -770,7 +770,7 @@ async function downloadPoster(){
 const PHOTO_SVG=`<svg viewBox="0 0 168 196" aria-hidden="true"><defs><radialGradient id="pg" cx="50%" cy="32%" r="80%"><stop offset="0%" stop-color="#caa76a"/><stop offset="100%" stop-color="#5a4020"/></radialGradient></defs><rect width="168" height="196" fill="url(#pg)"/><g stroke="rgba(240,220,170,.3)" stroke-width="1">${Array.from({length:10},(_,i)=>{const a=i/10*6.28;return `<line x1="84" y1="72" x2="${84+Math.cos(a)*130}" y2="${72+Math.sin(a)*130}"/>`;}).join("")}</g><circle cx="84" cy="72" r="26" fill="#1c140c"/><rect x="76" y="92" width="16" height="14" fill="#1c140c"/><path d="M32 196 v-52 a52 46 0 0 1 104 0 v52 z" fill="#1c140c"/><path d="M70 152 q7 -9 14 -1 q7 -8 14 1 q-7 -2 -14 4 q-7 -6 -14 -4 z" fill="#e3d2a8"/></svg>`;
 function buildLobbyPoster(){
  const rows=[["NAAM / NAME","Azaadi"],["AAKHRI BAAR DEKHA GAYA / LAST SEEN","ek azaad desh mein"],["PATA / WHEREABOUTS","kisi ko nahi"]];
- const ROWS_SPACER=[["उम्र / AGE","सदियों पुरानी — CENTURIES OLD"],["पहचान / MARKS","बेख़ौफ़ हँसी, खुली खिड़की, सवाल पूछती आँखें"],["अगर मिले / IF FOUND","अपने भीतर झाँकें — LOOK WITHIN"]];
+ const ROWS_SPACER=[["आख़िरी दर्शन / LAST SEEN","१५ अगस्त १९४७ — दिल्ली / 15 AUG 1947, DELHI"],["पहचान / MARKS","बेख़ौफ़ हँसी, खुली खिड़की, सवाल पूछती आँखें"],["अगर मिले / IF FOUND","अपने भीतर झाँकें — LOOK WITHIN"]];
  $("lobbyPoster").innerHTML=`<div class="stain"></div><div class="crease"></div>
  <div class="p-head"><h2>गुमशुदा !!</h2><p>MISSING · LIBERTY · गुमशुदा</p></div>
  <div class="p-photo">${PHOTO_SVG}</div>
