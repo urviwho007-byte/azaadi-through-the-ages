@@ -250,7 +250,7 @@ function trainLayer(on){if(!AC)return;if(on&&!ambTrain)ambTrain=mkLoop(BUF.clack
 function charkhaLayer(on){if(!AC)return;if(on&&!ambCharkha)ambCharkha=mkLoop(BUF.charkha,"lowpass",2400,.3,sfxBus);if(!on&&ambCharkha){stopLayer(ambCharkha);ambCharkha=null;}}
 function ambStop(){ambLayers.forEach(stopLayer);ambLayers=[];ambTrain=null;ambCharkha=null;}
 function setAmb(idx,t){
- if(!AC)return;ambStop();setStatic(idx===0?(t<16?.14:.03):0);
+ if(!AC)return;ambStop();setStatic(idx===0?(t<NT(16)?.14:.03):0);
  if(idx===0){mkDrone([50],.02);}
  if(idx===1){mkLoop(BUF.clack,"lowpass",500,.05,sfxBus);mkLoop(BUF.brown,"lowpass",420,.05,sfxBus);}
  if(idx===2){mkDrone([55,82.41],.05);mkLoop(BUF.brown,"lowpass",380,.06,sfxBus);}
@@ -820,10 +820,10 @@ function syncDOM(){
 function processFrame(dt){
  while(ci<CUES.length&&CUES[ci].t<=ft){const c=CUES[ci++];if(ft-c.t<.6)fire(c);}
  const idx=curScene;
- if((idx===5||(idx===1&&ft>54))&&ft>=nextBird){fire({f:"birds"});nextBird=ft+.7+Math.random()*1.8;}
- if(idx===2&&ft>=62&&ft>=nextHeart){fire({f:"heart"});nextHeart=ft+1.25;}
+ if((idx===5||(idx===1&&ft>NT(54)))&&ft>=nextBird){fire({f:"birds"});nextBird=ft+.7+Math.random()*1.8;}
+ if(idx===2&&ft>=NT(62)&&ft>=nextHeart){fire({f:"heart"});nextHeart=ft+1.25;}
  if((idx===2||idx===3)&&ft>=nextTick){tickAlt=!tickAlt;fire({f:"tick",a:tickAlt?2000:1500});nextTick=ft+.5;}
- const penWin=(ft>101&&ft<107.5)||(ft>114&&ft<121)||(ft>124&&ft<133);
+ const penWin=(ft>NT(101)&&ft<NT(107.5))||(ft>NT(114)&&ft<NT(121))||(ft>NT(124)&&ft<NT(133));
  if(penWin&&ft>=nextPen){fire({f:"pen"});nextPen=ft+.28+Math.random()*.15;}
  if(shotDip>0)shotDip-=dt;
  const shot=shotAt(ft);
