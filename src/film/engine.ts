@@ -8,7 +8,12 @@ export function runGumshuda(): void {
    GUMSHUDA: AZAADI — a poetic documentary on Liberty
    Old Hindi cinema · six reels · no voices, only sound
    ============================================================ */
-const W=960,H=720,DUR=225;
+/* Retiming: scenes were drawn on a 225 s picture timeline; subtitles were lengthened so each line can be spoken.
+   TMAP pairs [picture time, film time]; NT maps picture->film, VT maps film->picture (keeps drawn beats on their lines). */
+const TMAP=[[0,0],[6,6],[8,8.5],[8.5,9],[10.5,11],[11,11.5],[13.5,14],[14,14.5],[16.5,18.5],[17,19],[20.5,26],[21,26.5],[23,30],[23.5,30.5],[26.5,35],[27,35.5],[29.8,39.5],[32,41.7],[34,44.2],[34.5,44.7],[38.5,52.2],[39,52.7],[41,55.7],[43,58.7],[43.5,59.2],[46.5,64.2],[47,64.7],[50,69.2],[50.5,69.7],[53.5,74.7],[54,75.2],[56,79.2],[56.5,79.7],[59.8,85.7],[61,86.9],[64,90.9],[64.5,91.4],[66.5,93.9],[67,94.4],[69,96.9],[69.5,97.4],[73,101.9],[73.5,102.4],[75.5,105.9],[76,106.4],[78.5,110.4],[79,110.9],[84.5,119.4],[85,119.9],[86.5,121.9],[87,122.4],[89,125.4],[89.5,125.9],[91.5,129.9],[92,130.4],[95,135.9],[96.5,137.4],[99,139.9],[99.5,140.4],[102,142.9],[102.5,143.4],[106.5,148.4],[107,148.9],[111.5,154.9],[112,155.4],[116.5,160.9],[117,161.4],[121.5,166.9],[122,167.4],[127.5,173.9],[128,174.4],[134,182.9],[136,184.9],[138.5,187.9],[139,188.4],[140.5,190.2],[141,190.7],[144,194.7],[144.5,195.2],[147.5,198.7],[148,199.2],[150.5,203.2],[151,203.7],[155,209.7],[155.5,210.2],[158.5,214.2],[159,214.7],[163.5,221.7],[164,222.2],[167,227.2],[167.5,227.7],[169.8,232.2],[171,233.4],[174.5,236.9],[175,237.4],[178,240.9],[178.5,241.4],[182,245.4],[182.5,245.9],[185.5,249.9],[186,250.4],[189,254.4],[189.5,254.9],[193.5,259.4],[194,259.9],[196.5,262.4],[197,262.9],[201.5,267.9],[202,268.4],[204,270.4],[204.5,270.9],[206,272.9],[206.5,273.4],[211,279.9],[211.5,280.4],[214.8,284.9],[215,285.1],[216.4,287.6],[217.8,289.6],[219.2,291.6],[220.6,293.6],[222,295.6],[223.4,297.6]];
+const _map=(t,a,b)=>{const L=TMAP.length;if(t<=TMAP[0][a])return t;for(let i=1;i<L;i++){const p=TMAP[i-1],q=TMAP[i];if(t<=q[a]){const d=q[a]-p[a];return d>0?p[b]+(t-p[a])*(q[b]-p[b])/d:q[b];}}return TMAP[L-1][b]+(t-TMAP[L-1][a]);};
+const NT=t=>_map(t,0,1),VT=t=>_map(t,1,0);
+const W=960,H=720,DUR=NT(225);
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -51,97 +56,100 @@ const SHOTS=[
  {t0:211,t1:215,r:"poster2"},{t0:215,t1:225,r:"fin"}
 ];
 SHOTS.forEach(s=>{if(STOCK[s.r]){s.stock=STOCK[s.r];s.tex=s.tex||.3;}s.v=null;s.vstate=0;s.si=0;});
+SCENES.forEach(s=>{s.t0=NT(s.t0);s.t1=NT(s.t1);});
+SHOTS.forEach(s=>{s.v0=s.t0;s.v1=s.t1;s.t0=NT(s.t0);s.t1=NT(s.t1);});
 const sceneAt=t=>{for(let i=SCENES.length-1;i>=0;i--)if(t>=SCENES[i].t0)return i;return 0;};
 const shotAt=t=>{for(let i=SHOTS.length-1;i>=0;i--)if(t>=SHOTS[i].t0)return SHOTS[i];return SHOTS[0];};
 
 const CAPS=[
- {t0:6,t1:8,hi:"Yeh ek zaroori elaan hai.",en:""},
- {t0:8.5,t1:10.5,hi:"Ek cheez gumshuda hai.",en:""},
- {t0:11,t1:13.5,m:"stamp",hi:"Naam hai... Azaadi.",en:""},
- {t0:14,t1:16.5,hi:"Kehte hain, ise bahut saalon pehle paaya gaya tha.",en:""},
- {t0:17,t1:20.5,hi:"Iske liye ladaaiyaan ladi gayi, qurbaaniyaan di gayi, aur na jaane kitne sapne dekhe gaye.",en:""},
- {t0:21,t1:23,hi:"Lekin aaj... iska pata kisi ko nahi.",en:""},
- {t0:23.5,t1:26.5,hi:"Aakhri baar ise ek azaad desh mein dekha gaya tha.",en:""},
- {t0:27,t1:29.8,hi:"Agar aapko kahin nazar aaye... toh humein zaroor batayein.",en:""},
- {t0:32,t1:34,hi:"Humne uski talaash shuru ki.",en:""},
- {t0:34.5,t1:38.5,hi:"Purani kitaabon mein, itihaas ke pannon mein, un sadkon par jahan kabhi inquilab ke naare goonjte the.",en:""},
- {t0:39,t1:41,hi:"Har tasveer mein ek kahaani thi.",en:""},
- {t0:41,t1:43,hi:"Har kahaani mein ek khwaab tha.",en:""},
- {t0:43.5,t1:46.5,hi:"Ek aise kal ka khwaab, jahan koi kisi se na dare.",en:""},
- {t0:47,t1:50,hi:"Jahan apni baat kehne ke liye ijazat na maangni pade.",en:""},
- {t0:50.5,t1:53.5,hi:"Jahan jeene ke liye kisi aur ki marzi zaroori na ho.",en:""},
- {t0:54,t1:56,hi:"Lekin waqt ke saath ek sawaal reh gaya...",en:""},
- {t0:56.5,t1:59.8,hi:"Kya humne sirf ek desh ko azaad karaya tha, ya insaan ko bhi?",en:""},
- {t0:61,t1:64,hi:"Hum aage badhe... toh kuch deewarein nazar aayi.",en:""},
- {t0:64.5,t1:66.5,hi:"Kuch deewarein patthar ki thi.",en:""},
- {t0:67,t1:69,hi:"Kuch samaaj ne banayi thi.",en:""},
- {t0:69.5,t1:73,hi:"Aur kuch... humne khud apne andar khadi kar li thi.",en:""},
- {t0:73.5,t1:75.5,hi:"Kahin kisi ki awaaz daba di gayi.",en:""},
- {t0:76,t1:78.5,hi:"Kahin kisi ke sapnon ko chhota kar diya gaya.",en:""},
- {t0:79,t1:84.5,hi:"Kahin kisi ko bataya gaya ki use kaise jeena hai, kya banna hai, kisse milna hai, kya kehna hai.",en:""},
- {t0:85,t1:86.5,hi:"Aur hum sochte rahe...",en:""},
- {t0:87,t1:89,hi:"Aakhir azaadi ka matlab kya hai?",en:""},
- {t0:89.5,t1:91.5,hi:"Kya sirf zanjeeron ka na hona azaadi hai?",en:""},
- {t0:92,t1:95,hi:"Ya phir apne khwaabon ko bina dare jee paana bhi zaroori hai?",en:""},
- {t0:96.5,t1:99,hi:"Humne logon se poochna chaha...",en:""},
- {t0:99.5,t1:102,m:"hand",hw:"Kya tum azaad ho?",hi:"",en:""},
- {t0:102.5,t1:106.5,hi:"Lekin jawaab dene se pehle hi kai chehre khamosh ho gaye.",en:""},
- {t0:107,t1:111.5,hi:"Kisi ke paas kehne ko bahut kuch tha, par sunne wala koi nahi.",en:""},
- {t0:112,t1:116.5,hi:"Kisi ke paas sapne the, par unhe poora karne ke mauke nahi.",en:""},
- {t0:117,t1:121.5,hi:"Kisi ke paas apni marzi thi, par faisle karne ka haq nahi.",en:""},
- {t0:122,t1:127.5,hi:"Aur kisi ke paas sab kuch tha... bas khud ko chunne ki himmat nahi.",en:""},
- {t0:128,t1:134,m:"hand",hw:"Shayad azaadi ek aisi cheez hai, jise har insaan mehsoos toh karta hai, par har insaan jee nahi paata.",hi:"",en:""},
- {t0:136,t1:138.5,hi:"Phir ek din hum ruk gaye.",en:""},
- {t0:139,t1:140.5,hi:"Aur socha...",en:""},
- {t0:141,t1:144,hi:"Kya hum azaadi ko galat jagah dhoond rahe the?",en:""},
- {t0:144.5,t1:147.5,hi:"Shayad woh kisi kitaab mein nahi thi.",en:""},
- {t0:148,t1:150.5,hi:"Na kisi tareekh mein, na kisi naare mein.",en:""},
- {t0:151,t1:155,hi:"Shayad woh tab thi, jab koi apni marzi se apna raasta chunta hai.",en:""},
- {t0:155.5,t1:158.5,hi:"Jab koi bina dare apni awaaz uthata hai.",en:""},
- {t0:159,t1:163.5,hi:"Jab koi doosre ko bhi wahi haq deta hai, jo woh khud ke liye chahta hai.",en:""},
- {t0:164,t1:167,hi:"Kyunki azaadi sirf khud ke liye azaad hone ka naam nahi...",en:""},
- {t0:167.5,t1:169.8,hi:"Balki doosron ko bhi azaad rehne dene ka naam hai.",en:""},
- {t0:171,t1:174.5,hi:"Toh shayad Azaadi gumshuda nahi hai.",en:""},
- {t0:175,t1:178,hi:"Shayad woh humare beech hi kahin hai.",en:""},
- {t0:178.5,t1:182,hi:"Har us sawaal mein, jo poochha jaana baaki hai.",en:""},
- {t0:182.5,t1:185.5,hi:"Har us awaaz mein, jo uthna baaki hai.",en:""},
- {t0:186,t1:189,hi:"Har us sapne mein, jo poora hona baaki hai.",en:""},
- {t0:189.5,t1:193.5,hi:"Humne use dhoonda itihaas mein, sadkon par, logon ke beech...",en:""},
- {t0:194,t1:196.5,hi:"Aur aakhir mein samjha...",en:""},
- {t0:197,t1:201.5,hi:"Azaadi koi manzil nahi, jahan pahunch kar safar khatam ho jaaye.",en:""},
- {t0:202,t1:204,hi:"Azaadi ek ehsaas hai.",en:""},
- {t0:204.5,t1:206,hi:"Ek zimmedari hai.",en:""},
- {t0:206.5,t1:211,hi:"Ek aisa haq hai, jise har roz jeena aur har roz bachana padta hai.",en:""},
- {t0:211.5,t1:214.8,hi:"Aur shayad... isi liye uski talaash kabhi khatam nahi hoti.",en:""},
- {t0:215,t1:216.4,m:"fin",hi:"Azaadi sirf ek lafz nahi...",en:""},
- {t0:216.4,t1:217.8,m:"fin",hi:"Yeh ek khwaab hai.",en:""},
- {t0:217.8,t1:219.2,m:"fin",hi:"Ek awaaz hai.",en:""},
- {t0:219.2,t1:220.6,m:"fin",hi:"Ek sawaal hai.",en:""},
- {t0:220.6,t1:222,m:"fin",hi:"Ek haq hai.",en:""},
- {t0:222,t1:223.4,m:"fin",hi:"Aur ek zimmedari bhi.",en:""}
+ {t0:6,t1:8.5,hi:"Yeh ek zaroori elaan hai.",en:""},
+ {t0:9,t1:11,hi:"Ek cheez gumshuda hai.",en:""},
+ {t0:11.5,t1:14,m:"stamp",hi:"Naam hai... Azaadi.",en:""},
+ {t0:14.5,t1:18.5,hi:"Kehte hain, ise bahut saalon pehle paaya gaya tha.",en:""},
+ {t0:19,t1:26,hi:"Iske liye ladaaiyaan ladi gayi, qurbaaniyaan di gayi, aur na jaane kitne sapne dekhe gaye.",en:""},
+ {t0:26.5,t1:30,hi:"Lekin aaj... iska pata kisi ko nahi.",en:""},
+ {t0:30.5,t1:35,hi:"Aakhri baar ise ek azaad desh mein dekha gaya tha.",en:""},
+ {t0:35.5,t1:39.5,hi:"Agar aapko kahin nazar aaye... toh humein zaroor batayein.",en:""},
+ {t0:41.7,t1:44.2,hi:"Humne uski talaash shuru ki.",en:""},
+ {t0:44.7,t1:52.2,hi:"Purani kitaabon mein, itihaas ke pannon mein, un sadkon par jahan kabhi inquilab ke naare goonjte the.",en:""},
+ {t0:52.7,t1:55.7,hi:"Har tasveer mein ek kahaani thi.",en:""},
+ {t0:55.7,t1:58.7,hi:"Har kahaani mein ek khwaab tha.",en:""},
+ {t0:59.2,t1:64.2,hi:"Ek aise kal ka khwaab, jahan koi kisi se na dare.",en:""},
+ {t0:64.7,t1:69.2,hi:"Jahan apni baat kehne ke liye ijazat na maangni pade.",en:""},
+ {t0:69.7,t1:74.7,hi:"Jahan jeene ke liye kisi aur ki marzi zaroori na ho.",en:""},
+ {t0:75.2,t1:79.2,hi:"Lekin waqt ke saath ek sawaal reh gaya...",en:""},
+ {t0:79.7,t1:85.7,hi:"Kya humne sirf ek desh ko azaad karaya tha, ya insaan ko bhi?",en:""},
+ {t0:86.9,t1:90.9,hi:"Hum aage badhe... toh kuch deewarein nazar aayi.",en:""},
+ {t0:91.4,t1:93.9,hi:"Kuch deewarein patthar ki thi.",en:""},
+ {t0:94.4,t1:96.9,hi:"Kuch samaaj ne banayi thi.",en:""},
+ {t0:97.4,t1:101.9,hi:"Aur kuch... humne khud apne andar khadi kar li thi.",en:""},
+ {t0:102.4,t1:105.9,hi:"Kahin kisi ki awaaz daba di gayi.",en:""},
+ {t0:106.4,t1:110.4,hi:"Kahin kisi ke sapnon ko chhota kar diya gaya.",en:""},
+ {t0:110.9,t1:119.4,hi:"Kahin kisi ko bataya gaya ki use kaise jeena hai, kya banna hai, kisse milna hai, kya kehna hai.",en:""},
+ {t0:119.9,t1:121.9,hi:"Aur hum sochte rahe...",en:""},
+ {t0:122.4,t1:125.4,hi:"Aakhir azaadi ka matlab kya hai?",en:""},
+ {t0:125.9,t1:129.9,hi:"Kya sirf zanjeeron ka na hona azaadi hai?",en:""},
+ {t0:130.4,t1:135.9,hi:"Ya phir apne khwaabon ko bina dare jee paana bhi zaroori hai?",en:""},
+ {t0:137.4,t1:139.9,hi:"Humne logon se poochna chaha...",en:""},
+ {t0:140.4,t1:142.9,m:"hand",hw:"Kya tum azaad ho?",hi:"",en:""},
+ {t0:143.4,t1:148.4,hi:"Lekin jawaab dene se pehle hi kai chehre khamosh ho gaye.",en:""},
+ {t0:148.9,t1:154.9,hi:"Kisi ke paas kehne ko bahut kuch tha, par sunne wala koi nahi.",en:""},
+ {t0:155.4,t1:160.9,hi:"Kisi ke paas sapne the, par unhe poora karne ke mauke nahi.",en:""},
+ {t0:161.4,t1:166.9,hi:"Kisi ke paas apni marzi thi, par faisle karne ka haq nahi.",en:""},
+ {t0:167.4,t1:173.9,hi:"Aur kisi ke paas sab kuch tha... bas khud ko chunne ki himmat nahi.",en:""},
+ {t0:174.4,t1:182.9,m:"hand",hw:"Shayad azaadi ek aisi cheez hai, jise har insaan mehsoos toh karta hai, par har insaan jee nahi paata.",hi:"",en:""},
+ {t0:184.9,t1:187.9,hi:"Phir ek din hum ruk gaye.",en:""},
+ {t0:188.4,t1:190.2,hi:"Aur socha...",en:""},
+ {t0:190.7,t1:194.7,hi:"Kya hum azaadi ko galat jagah dhoond rahe the?",en:""},
+ {t0:195.2,t1:198.7,hi:"Shayad woh kisi kitaab mein nahi thi.",en:""},
+ {t0:199.2,t1:203.2,hi:"Na kisi tareekh mein, na kisi naare mein.",en:""},
+ {t0:203.7,t1:209.7,hi:"Shayad woh tab thi, jab koi apni marzi se apna raasta chunta hai.",en:""},
+ {t0:210.2,t1:214.2,hi:"Jab koi bina dare apni awaaz uthata hai.",en:""},
+ {t0:214.7,t1:221.7,hi:"Jab koi doosre ko bhi wahi haq deta hai, jo woh khud ke liye chahta hai.",en:""},
+ {t0:222.2,t1:227.2,hi:"Kyunki azaadi sirf khud ke liye azaad hone ka naam nahi...",en:""},
+ {t0:227.7,t1:232.2,hi:"Balki doosron ko bhi azaad rehne dene ka naam hai.",en:""},
+ {t0:233.4,t1:236.9,hi:"Toh shayad Azaadi gumshuda nahi hai.",en:""},
+ {t0:237.4,t1:240.9,hi:"Shayad woh humare beech hi kahin hai.",en:""},
+ {t0:241.4,t1:245.4,hi:"Har us sawaal mein, jo poochha jaana baaki hai.",en:""},
+ {t0:245.9,t1:249.9,hi:"Har us awaaz mein, jo uthna baaki hai.",en:""},
+ {t0:250.4,t1:254.4,hi:"Har us sapne mein, jo poora hona baaki hai.",en:""},
+ {t0:254.9,t1:259.4,hi:"Humne use dhoonda itihaas mein, sadkon par, logon ke beech...",en:""},
+ {t0:259.9,t1:262.4,hi:"Aur aakhir mein samjha...",en:""},
+ {t0:262.9,t1:267.9,hi:"Azaadi koi manzil nahi, jahan pahunch kar safar khatam ho jaaye.",en:""},
+ {t0:268.4,t1:270.4,hi:"Azaadi ek ehsaas hai.",en:""},
+ {t0:270.9,t1:272.9,hi:"Ek zimmedari hai.",en:""},
+ {t0:273.4,t1:279.9,hi:"Ek aisa haq hai, jise har roz jeena aur har roz bachana padta hai.",en:""},
+ {t0:280.4,t1:284.9,hi:"Aur shayad... isi liye uski talaash kabhi khatam nahi hoti.",en:""},
+ {t0:285.1,t1:287.6,m:"fin",hi:"Azaadi sirf ek lafz nahi...",en:""},
+ {t0:287.6,t1:289.6,m:"fin",hi:"Yeh ek khwaab hai.",en:""},
+ {t0:289.6,t1:291.6,m:"fin",hi:"Ek awaaz hai.",en:""},
+ {t0:291.6,t1:293.6,m:"fin",hi:"Ek sawaal hai.",en:""},
+ {t0:293.6,t1:295.6,m:"fin",hi:"Ek haq hai.",en:""},
+ {t0:295.6,t1:297.6,m:"fin",hi:"Aur ek zimmedari bhi.",en:""}
 ];
 
 /* ---------------- sound cues ---------------- */
 const CUES=[];
-const cue=(t,f,a)=>CUES.push({t,f,a});
+const cueRaw=(t,f,a)=>CUES.push({t,f,a});
+const cue=(t,f,a)=>cueRaw(NT(t),f,a);
 cue(0.1,"staticHi");[0.4,2.2,4,5.8,7.6,9.4].forEach(t=>cue(t,"sweep"));
 (()=>{ // morse AZAADI
- const M={A:".-",Z:"--..",D:"-..",I:".."};let t=8.2;const u=.085;
- for(const ch of "AZAADI"){for(const s of M[ch]){cue(t,"morse",s==="."?u:u*3);t+=s==="."?u*2:u*4;}t+=u*3;}
+ const M={A:".-",Z:"--..",D:"-..",I:".."};let t=NT(8.2);const u=.085;
+ for(const ch of "AZAADI"){for(const s of M[ch]){cueRaw(t,"morse",s==="."?u:u*3);t+=s==="."?u*2:u*4;}t+=u*3;}
 })();
 cue(16,"staticLo");cue(16,"click");cue(27.2,"page");cue(27.6,"thud");
 cue(31.4,"whistle");cue(30.8,"page");cue(52.5,"whistle");cue(54,"bell");cue(55.4,"birds");cue(56.4,"birds");
-[[392,.9,33],[415.3,.9,34.1],[466.16,.9,35.2],[523.25,1.4,36.3],[466.16,.8,38],[415.3,.8,39],[392,1.2,40],[349.23,1.7,41.2]].forEach(n=>cue(n[2],"flute",[n[0],n[1]]));
-for(let t=31;t<59;t+=4){cue(t,"dha");cue(t+.75,"tin");cue(t+1.5,"dha");cue(t+2.25,"tin");cue(t+3,"dha");}
+[[392,.9,33],[415.3,.9,34.1],[466.16,.9,35.2],[523.25,1.4,36.3],[466.16,.8,38],[415.3,.8,39],[392,1.2,40],[349.23,1.7,41.2]].forEach(n=>cueRaw(NT(33)+n[2]-33,"flute",[n[0],n[1]]));
+for(let t=NT(31);t<NT(59);t+=4){cueRaw(t,"dha");cueRaw(t+.75,"tin");cueRaw(t+1.5,"dha");cueRaw(t+2.25,"tin");cueRaw(t+3,"dha");}
 [66.3,70.2,84.7,86.1,88.4].forEach(t=>cue(t,"clink"));
 [75.5,78.5,81.5].forEach(t=>cue(t,"thud"));
 [96.5,100.8,110.5,123.5].forEach(t=>cue(t,"page"));
 [97,100.2,103.4,106.6,110,113,116.5,119.5].forEach((t,i)=>cue(t,"pluck",[261.63,311.13,349.23,311.13,261.63,233.08,261.63,311.13][i]));
 cue(124.5,"chord",[261.63,392,523.25]);
-[[261.63,.8,150],[277.18,.8,151],[311.13,1,152],[349.23,1.2,153.2],[311.13,.8,154.6],[277.18,.8,155.6],[261.63,1.8,156.6]].forEach(n=>cue(n[2],"flute",[n[0],n[1]]));
+[[261.63,.8,150],[277.18,.8,151],[311.13,1,152],[349.23,1.2,153.2],[311.13,.8,154.6],[277.18,.8,155.6],[261.63,1.8,156.6]].forEach(n=>cueRaw(NT(150)+n[2]-150,"flute",[n[0],n[1]]));
 cue(163,"chime");
 [[261.63,172],[311.13,175],[349.23,178],[392,181],[466.16,184],[523.25,187]].forEach(n=>cue(n[1],"pluck",[n[0]]));
-for(let t=171;t<213;t+=2)cue(t,"tin");
+for(let t=NT(171);t<NT(213);t+=2)cueRaw(t,"tin");
 cue(186,"chime");cue(194,"swell");cue(194,"chord",[261.63,392,523.25]);cue(200,"pluck",[523.25]);
 cue(211.2,"page");cue(213.5,"thud");
 [215,216.4,217.8,219.2,220.6,222].forEach(t=>cue(t,"blip"));
@@ -719,7 +727,7 @@ function grade(g){
  if(sr(k*1.7)>.985){g.fillStyle=`rgba(255,240,210,${fl*.06})`;g.fillRect(0,0,W,H);}
 }
 const xfC=document.createElement("canvas");xfC.width=W;xfC.height=H;const xfG=xfC.getContext("2d");const XF=.8;
-function renderShot(g,shot,t,vOK){const st=t-shot.t0,pr=st/(shot.t1-shot.t0),dir=SHOTS.indexOf(shot)%2?1:-1,z=1.02+.035*pr;
+function renderShot(g,shot,t,vOK){const st=VT(t)-shot.v0,pr=st/(shot.t1-shot.t0),dir=SHOTS.indexOf(shot)%2?1:-1,z=1.02+.035*pr;
  g.save();g.translate(480+dir*9*(pr-.5),360-3*pr);g.scale(z,z);g.translate(-480,-360);figN=0;
  const R=REND[shot.r];g.save();g.globalAlpha=vOK?.6:1;if(R.bg)R.bg(g,t,st);g.globalAlpha=1;if(R.fg)R.fg(g,t,st);g.restore();g.restore();}
 function drawScene(){
@@ -770,8 +778,8 @@ function drawFX(dt){
   g.fillStyle="rgba(20,10,4,.8)";g.beginPath();g.arc(870+r*.4,86-r*.3,r*.24,0,7);g.fill();g.globalAlpha=1;});
  if(adv&&S.burns&&Math.random()<.0007)burns.push({age:0});
  // finale static burst + fade
- if(view==="film"&&ft>=223.4&&ft<224.2){g.globalAlpha=.65;g.drawImage(grainTiles[Math.floor(ft*30)%6],0,0,W,H);g.globalAlpha=.3;g.fillStyle="#fff";for(let i=0;i<3;i++)g.fillRect(0,sr(Math.floor(ft*20)+i)*H,W,2);g.globalAlpha=1;}
- if(view==="film"&&ft>=224.2){g.fillStyle=`rgba(0,0,0,${clamp((ft-224.2)/.8,0,1)})`;g.fillRect(0,0,W,H);}
+ if(view==="film"&&ft>=NT(223.4)&&ft<NT(224.2)){g.globalAlpha=.65;g.drawImage(grainTiles[Math.floor(ft*30)%6],0,0,W,H);g.globalAlpha=.3;g.fillStyle="#fff";for(let i=0;i<3;i++)g.fillRect(0,sr(Math.floor(ft*20)+i)*H,W,2);g.globalAlpha=1;}
+ if(view==="film"&&ft>=NT(224.2)){g.fillStyle=`rgba(0,0,0,${clamp((ft-NT(224.2))/.8,0,1)})`;g.fillRect(0,0,W,H);}
  // iris
  if(irisAge<.7){if(adv||view==="film")irisAge+=dt;const p=clamp(irisAge/.7,0,1);
   g.globalCompositeOperation="source-over";g.fillStyle="#000";g.fillRect(0,0,W,H);
@@ -804,7 +812,7 @@ function syncDOM(){
  const key=c?c.t0:-1;
  if(key!==lastCapKey){lastCapKey=key;capsEl.innerHTML=c?capHTML(c):"";if(c&&(c.m||"sub")==="sub"&&playing)fire({f:"tick",a:1200});}
  const sec=Math.floor(ft);
- if(sec!==lastSec){lastSec=sec;$("tcode").textContent=fmt(ft)+" / 3:45";$("slateTc").textContent=fmt(ft);}
+ if(sec!==lastSec){lastSec=sec;$("tcode").textContent=fmt(ft)+" / "+fmt(DUR);$("slateTc").textContent=fmt(ft);}
  const pct=clamp(ft/DUR*100,0,100);$("stripFill").style.width=pct+"%";$("stripHead").style.left=pct+"%";
  $("pausedStamp").classList.toggle("hidden",playing||view!=="film");
  $("playIco").classList.toggle("hidden",playing);$("pauseIco").classList.toggle("hidden",!playing);
@@ -891,7 +899,7 @@ function finish(){
  SHOTS.forEach(s=>{if(s.v)try{s.v.pause();}catch(e){}});
  showView("film");view="end";
  $("readout").textContent="॥ समाप्त · FIN ॥";
- $("tcode").textContent="3:45 / 3:45";$("slateTc").textContent="3:45";
+ $("tcode").textContent=fmt(DUR)+" / "+fmt(DUR);$("slateTc").textContent=fmt(DUR);
  $("stripFill").style.width="100%";$("stripHead").style.left="100%";
  $("endcard").classList.add("show");
  $("playIco").classList.remove("hidden");$("pauseIco").classList.add("hidden");
