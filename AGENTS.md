@@ -30,6 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- The film (src/film/engine.ts, src/film/markup.ts, src/styles.css) is a verbatim port of the user's source HTML; never redesign or refactor it — edit only the specific data the user asks for. Why: the user requires the app to behave identically to that file.
+- The film (src/film/engine.ts, src/film/markup.ts, src/styles.css) started as a port of the user's source HTML; its scenes are now custom canvas reels in that HTML's ink-and-sepia style. Keep the original engine structure (REND table, CUES, drawFX, booth) and change only what the user asks. Why: the user wants the original look and behaviour, with script-driven scenes.
+- Figures (fig/pose) share a per-shot counter (figN, reset in renderShot) that picks each figure's costume look; shots crossfade via renderShot into an offscreen canvas. Why: stable per-figure personality and seamless cuts without touching each renderer.
 - src/styles.css must not import Tailwind; its preflight changes the film's layout. Why: exact visual parity with the source HTML.
 - The engine runs once on mount from src/routes/index.tsx over markup injected with dangerouslySetInnerHTML. Why: the original script owns and mutates that DOM directly.
