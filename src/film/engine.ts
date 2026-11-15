@@ -712,7 +712,7 @@ function grade(g){
  g.fillStyle=`rgba(${Math.round(lerp(168,222,tn))},${Math.round(lerp(178,196,tn))},${Math.round(lerp(196,142,tn))},.55)`;g.fillRect(0,0,W,H);
  g.globalCompositeOperation="screen";
  g.fillStyle=`rgba(255,228,170,${.04+.07*tn})`;g.fillRect(0,0,W,H);
- g.fillStyle="rgba(92,74,50,.9)";g.fillRect(0,0,W,H);
+ g.fillStyle="rgba(58,46,30,.85)";g.fillRect(0,0,W,H);
  g.globalCompositeOperation="source-over";
  const fl=S.flick/100;const k=Math.floor(ft*24);
  g.fillStyle=`rgba(0,0,0,${fl*(.04+.09*sr(k+.3))})`;g.fillRect(0,0,W,H);
