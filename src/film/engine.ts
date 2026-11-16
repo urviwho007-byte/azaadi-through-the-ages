@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { buildTimeline, mapTime, VOICES, RADIO } from "./timeline";
 /* Verbatim port of the source HTML film engine (Qwen_html_20261113_09446k3te.html).
    The code below is copied unchanged; only CAPS, the poster text rows/footer were edited as requested.
    Wrapped in a function so it runs once in the browser after the markup is mounted. */
@@ -8,12 +9,11 @@ export function runGumshuda(): void {
    GUMSHUDA: AZAADI — a poetic documentary on Liberty
    Old Hindi cinema · six reels · no voices, only sound
    ============================================================ */
-/* Retiming: scenes were drawn on a 225 s picture timeline; subtitles were lengthened so each line can be spoken.
-   TMAP pairs [picture time, film time]; NT maps picture->film, VT maps film->picture (keeps drawn beats on their lines). */
-const TMAP=[[0,0],[6,6],[8,8.5],[8.5,9],[10.5,11],[11,11.5],[13.5,14],[14,14.5],[16.5,18.5],[17,19],[20.5,26],[21,26.5],[23,30],[23.5,30.5],[26.5,35],[27,35.5],[29.8,39.5],[32,41.7],[34,44.2],[34.5,44.7],[38.5,52.2],[39,52.7],[41,55.7],[43,58.7],[43.5,59.2],[46.5,64.2],[47,64.7],[50,69.2],[50.5,69.7],[53.5,74.7],[54,75.2],[56,79.2],[56.5,79.7],[59.8,85.7],[61,86.9],[64,90.9],[64.5,91.4],[66.5,93.9],[67,94.4],[69,96.9],[69.5,97.4],[73,101.9],[73.5,102.4],[75.5,105.9],[76,106.4],[78.5,110.4],[79,110.9],[84.5,119.4],[85,119.9],[86.5,121.9],[87,122.4],[89,125.4],[89.5,125.9],[91.5,129.9],[92,130.4],[95,135.9],[96.5,137.4],[99,139.9],[99.5,140.4],[102,142.9],[102.5,143.4],[106.5,148.4],[107,148.9],[111.5,154.9],[112,155.4],[116.5,160.9],[117,161.4],[121.5,166.9],[122,167.4],[127.5,173.9],[128,174.4],[134,182.9],[136,184.9],[138.5,187.9],[139,188.4],[140.5,190.2],[141,190.7],[144,194.7],[144.5,195.2],[147.5,198.7],[148,199.2],[150.5,203.2],[151,203.7],[155,209.7],[155.5,210.2],[158.5,214.2],[159,214.7],[163.5,221.7],[164,222.2],[167,227.2],[167.5,227.7],[169.8,232.2],[171,233.4],[174.5,236.9],[175,237.4],[178,240.9],[178.5,241.4],[182,245.4],[182.5,245.9],[185.5,249.9],[186,250.4],[189,254.4],[189.5,254.9],[193.5,259.4],[194,259.9],[196.5,262.4],[197,262.9],[201.5,267.9],[202,268.4],[204,270.4],[204.5,270.9],[206,272.9],[206.5,273.4],[211,279.9],[211.5,280.4],[214.8,284.9],[215,285.1],[216.4,287.6],[217.8,289.6],[219.2,291.6],[220.6,293.6],[222,295.6],[223.4,297.6]];
-const _map=(t,a,b)=>{const L=TMAP.length;if(t<=TMAP[0][a])return t;for(let i=1;i<L;i++){const p=TMAP[i-1],q=TMAP[i];if(t<=q[a]){const d=q[a]-p[a];return d>0?p[b]+(t-p[a])*(q[b]-p[b])/d:q[b];}}return TMAP[L-1][b]+(t-TMAP[L-1][a]);};
-const NT=t=>_map(t,0,1),VT=t=>_map(t,1,0);
-const W=960,H=720,DUR=NT(225);
+/* Timing: the recordings are the master clock (see ./timeline). TMAP maps picture time <-> film time and is rebuilt
+   from the real decoded durations. NT maps picture->film, VT maps film->picture (keeps drawn beats on their lines). */
+let TMAP=[[0,0],[225,225]],TL=null;
+const NT=t=>mapTime(TMAP,t,0,1),VT=t=>mapTime(TMAP,t,1,0);
+const W=960,H=720;let DUR=225;
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -56,82 +56,19 @@ const SHOTS=[
  {t0:211,t1:215,r:"poster2"},{t0:215,t1:225,r:"fin"}
 ];
 SHOTS.forEach(s=>{if(STOCK[s.r]){s.stock=STOCK[s.r];s.tex=s.tex||.3;}s.v=null;s.vstate=0;s.si=0;});
-SCENES.forEach(s=>{s.t0=NT(s.t0);s.t1=NT(s.t1);});
-SHOTS.forEach(s=>{s.v0=s.t0;s.v1=s.t1;s.t0=NT(s.t0);s.t1=NT(s.t1);});
+SCENES.forEach(s=>{s.v0=s.t0;s.v1=s.t1;});
+SHOTS.forEach(s=>{s.v0=s.t0;s.v1=s.t1;});
 const sceneAt=t=>{for(let i=SCENES.length-1;i>=0;i--)if(t>=SCENES[i].t0)return i;return 0;};
 const shotAt=t=>{for(let i=SHOTS.length-1;i>=0;i--)if(t>=SHOTS[i].t0)return SHOTS[i];return SHOTS[0];};
 
-const CAPS=[
- {t0:6,t1:8.5,hi:"Yeh ek zaroori elaan hai.",en:""},
- {t0:9,t1:11,hi:"Ek cheez gumshuda hai.",en:""},
- {t0:11.5,t1:14,m:"stamp",hi:"Naam hai... Azaadi.",en:""},
- {t0:14.5,t1:18.5,hi:"Kehte hain, ise bahut saalon pehle paaya gaya tha.",en:""},
- {t0:19,t1:26,hi:"Iske liye ladaaiyaan ladi gayi, qurbaaniyaan di gayi, aur na jaane kitne sapne dekhe gaye.",en:""},
- {t0:26.5,t1:30,hi:"Lekin aaj... iska pata kisi ko nahi.",en:""},
- {t0:30.5,t1:35,hi:"Aakhri baar ise ek azaad desh mein dekha gaya tha.",en:""},
- {t0:35.5,t1:39.5,hi:"Agar aapko kahin nazar aaye... toh humein zaroor batayein.",en:""},
- {t0:41.7,t1:44.2,hi:"Humne uski talaash shuru ki.",en:""},
- {t0:44.7,t1:52.2,hi:"Purani kitaabon mein, itihaas ke pannon mein, un sadkon par jahan kabhi inquilab ke naare goonjte the.",en:""},
- {t0:52.7,t1:55.7,hi:"Har tasveer mein ek kahaani thi.",en:""},
- {t0:55.7,t1:58.7,hi:"Har kahaani mein ek khwaab tha.",en:""},
- {t0:59.2,t1:64.2,hi:"Ek aise kal ka khwaab, jahan koi kisi se na dare.",en:""},
- {t0:64.7,t1:69.2,hi:"Jahan apni baat kehne ke liye ijazat na maangni pade.",en:""},
- {t0:69.7,t1:74.7,hi:"Jahan jeene ke liye kisi aur ki marzi zaroori na ho.",en:""},
- {t0:75.2,t1:79.2,hi:"Lekin waqt ke saath ek sawaal reh gaya...",en:""},
- {t0:79.7,t1:85.7,hi:"Kya humne sirf ek desh ko azaad karaya tha, ya insaan ko bhi?",en:""},
- {t0:86.9,t1:90.9,hi:"Hum aage badhe... toh kuch deewarein nazar aayi.",en:""},
- {t0:91.4,t1:93.9,hi:"Kuch deewarein patthar ki thi.",en:""},
- {t0:94.4,t1:96.9,hi:"Kuch samaaj ne banayi thi.",en:""},
- {t0:97.4,t1:101.9,hi:"Aur kuch... humne khud apne andar khadi kar li thi.",en:""},
- {t0:102.4,t1:105.9,hi:"Kahin kisi ki awaaz daba di gayi.",en:""},
- {t0:106.4,t1:110.4,hi:"Kahin kisi ke sapnon ko chhota kar diya gaya.",en:""},
- {t0:110.9,t1:119.4,hi:"Kahin kisi ko bataya gaya ki use kaise jeena hai, kya banna hai, kisse milna hai, kya kehna hai.",en:""},
- {t0:119.9,t1:121.9,hi:"Aur hum sochte rahe...",en:""},
- {t0:122.4,t1:125.4,hi:"Aakhir azaadi ka matlab kya hai?",en:""},
- {t0:125.9,t1:129.9,hi:"Kya sirf zanjeeron ka na hona azaadi hai?",en:""},
- {t0:130.4,t1:135.9,hi:"Ya phir apne khwaabon ko bina dare jee paana bhi zaroori hai?",en:""},
- {t0:137.4,t1:139.9,hi:"Humne logon se poochna chaha...",en:""},
- {t0:140.4,t1:142.9,m:"hand",hw:"Kya tum azaad ho?",hi:"",en:""},
- {t0:143.4,t1:148.4,hi:"Lekin jawaab dene se pehle hi kai chehre khamosh ho gaye.",en:""},
- {t0:148.9,t1:154.9,hi:"Kisi ke paas kehne ko bahut kuch tha, par sunne wala koi nahi.",en:""},
- {t0:155.4,t1:160.9,hi:"Kisi ke paas sapne the, par unhe poora karne ke mauke nahi.",en:""},
- {t0:161.4,t1:166.9,hi:"Kisi ke paas apni marzi thi, par faisle karne ka haq nahi.",en:""},
- {t0:167.4,t1:173.9,hi:"Aur kisi ke paas sab kuch tha... bas khud ko chunne ki himmat nahi.",en:""},
- {t0:174.4,t1:182.9,m:"hand",hw:"Shayad azaadi ek aisi cheez hai, jise har insaan mehsoos toh karta hai, par har insaan jee nahi paata.",hi:"",en:""},
- {t0:184.9,t1:187.9,hi:"Phir ek din hum ruk gaye.",en:""},
- {t0:188.4,t1:190.2,hi:"Aur socha...",en:""},
- {t0:190.7,t1:194.7,hi:"Kya hum azaadi ko galat jagah dhoond rahe the?",en:""},
- {t0:195.2,t1:198.7,hi:"Shayad woh kisi kitaab mein nahi thi.",en:""},
- {t0:199.2,t1:203.2,hi:"Na kisi tareekh mein, na kisi naare mein.",en:""},
- {t0:203.7,t1:209.7,hi:"Shayad woh tab thi, jab koi apni marzi se apna raasta chunta hai.",en:""},
- {t0:210.2,t1:214.2,hi:"Jab koi bina dare apni awaaz uthata hai.",en:""},
- {t0:214.7,t1:221.7,hi:"Jab koi doosre ko bhi wahi haq deta hai, jo woh khud ke liye chahta hai.",en:""},
- {t0:222.2,t1:227.2,hi:"Kyunki azaadi sirf khud ke liye azaad hone ka naam nahi...",en:""},
- {t0:227.7,t1:232.2,hi:"Balki doosron ko bhi azaad rehne dene ka naam hai.",en:""},
- {t0:233.4,t1:236.9,hi:"Toh shayad Azaadi gumshuda nahi hai.",en:""},
- {t0:237.4,t1:240.9,hi:"Shayad woh humare beech hi kahin hai.",en:""},
- {t0:241.4,t1:245.4,hi:"Har us sawaal mein, jo poochha jaana baaki hai.",en:""},
- {t0:245.9,t1:249.9,hi:"Har us awaaz mein, jo uthna baaki hai.",en:""},
- {t0:250.4,t1:254.4,hi:"Har us sapne mein, jo poora hona baaki hai.",en:""},
- {t0:254.9,t1:259.4,hi:"Humne use dhoonda itihaas mein, sadkon par, logon ke beech...",en:""},
- {t0:259.9,t1:262.4,hi:"Aur aakhir mein samjha...",en:""},
- {t0:262.9,t1:267.9,hi:"Azaadi koi manzil nahi, jahan pahunch kar safar khatam ho jaaye.",en:""},
- {t0:268.4,t1:270.4,hi:"Azaadi ek ehsaas hai.",en:""},
- {t0:270.9,t1:272.9,hi:"Ek zimmedari hai.",en:""},
- {t0:273.4,t1:279.9,hi:"Ek aisa haq hai, jise har roz jeena aur har roz bachana padta hai.",en:""},
- {t0:280.4,t1:284.9,hi:"Aur shayad... isi liye uski talaash kabhi khatam nahi hoti.",en:""},
- {t0:285.1,t1:287.6,m:"fin",hi:"Azaadi sirf ek lafz nahi...",en:""},
- {t0:287.6,t1:289.6,m:"fin",hi:"Yeh ek khwaab hai.",en:""},
- {t0:289.6,t1:291.6,m:"fin",hi:"Ek awaaz hai.",en:""},
- {t0:291.6,t1:293.6,m:"fin",hi:"Ek sawaal hai.",en:""},
- {t0:293.6,t1:295.6,m:"fin",hi:"Ek haq hai.",en:""},
- {t0:295.6,t1:297.6,m:"fin",hi:"Aur ek zimmedari bhi.",en:""}
-];
+/* subtitles: built by applyTimeline() from ./timeline (text unchanged, times pinned to the recordings) */
+let CAPS=[];
 
 /* ---------------- sound cues ---------------- */
 const CUES=[];
 const cueRaw=(t,f,a)=>CUES.push({t,f,a});
 const cue=(t,f,a)=>cueRaw(NT(t),f,a);
+function buildCues(){CUES.length=0;
 cue(0.1,"staticHi");[0.4,2.2,4,5.8,7.6,9.4].forEach(t=>cue(t,"sweep"));
 (()=>{ // morse AZAADI
  const M={A:".-",Z:"--..",D:"-..",I:".."};let t=NT(8.2);const u=.085;
@@ -154,12 +91,12 @@ cue(186,"chime");cue(194,"swell");cue(194,"chord",[261.63,392,523.25]);cue(200,"
 cue(211.2,"page");cue(213.5,"thud");
 [215,216.4,217.8,219.2,220.6,222].forEach(t=>cue(t,"blip"));
 cue(223.4,"burst");cue(223.4,"projOff");
-CUES.sort((a,b)=>a.t-b.t);
+CUES.sort((a,b)=>a.t-b.t);}
 
 /* ============================================================
    AUDIO — all synthesized, no voices
    ============================================================ */
-let AC=null,master,projBus,sfxBus,scoreBus,comp;
+let AC=null,master,projBus,sfxBus,scoreBus,comp,bed,voiceBus;
 let projLevel=0,staticLevel=0,staticGain=null;
 let ambLayers=[],ambTrain=null,ambCharkha=null;
 const pluckCache={};let BUF={};
@@ -170,7 +107,9 @@ function initAudio(){
   comp=AC.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=4;comp.connect(AC.destination);
   master=AC.createGain();master.connect(comp);
   projBus=AC.createGain();sfxBus=AC.createGain();scoreBus=AC.createGain();
-  [projBus,sfxBus,scoreBus].forEach(b=>b.connect(master));
+  // projector + score sit on a "bed" that dips a little under dialogue; SOUND FX (incl. the radio static) and dialogue go straight to master
+  bed=AC.createGain();bed.connect(master);voiceBus=AC.createGain();voiceBus.connect(master);
+  projBus.connect(bed);scoreBus.connect(bed);sfxBus.connect(master);
   BUF.white=mkBuf(2,(t)=>Math.random()*2-1);
   let br=0;BUF.brown=mkBuf(2,(t)=>{br=(br+ (Math.random()*2-1)*.04);br*=.985;return br*6;});
   let pb=0;BUF.proj=mkBuf(1,(t)=>{pb=(pb+(Math.random()*2-1)*.05)*.97;const sh=(t*24)%1;return pb*.9+(Math.random()*2-1)*Math.exp(-sh*26)*.5+Math.sin(t*2*Math.PI*50)*.10;});
@@ -212,9 +151,9 @@ function birds(){if(!AC)return;const t=AC.currentTime;const n=3+Math.floor(Math.
 function fire(c){
  if(!AC)return;const t=AC.currentTime;
  switch(c.f){
-  case"staticHi":setStatic(.16);break;
-  case"staticLo":setStatic(.03);break;
-  case"sweep":osc("sine",700+Math.random()*500,t,.7,.05,sfxBus,260);noiseShot(t,.5,.06,"bandpass",800,2600,sfxBus);break;
+  case"staticHi":if(!radioOK())setStatic(.16);break; // generated static only as a silent fallback when the radio recording is missing
+  case"staticLo":if(!radioOK())setStatic(.03);break;
+  case"sweep":if(radioOK())break;osc("sine",700+Math.random()*500,t,.7,.05,sfxBus,260);noiseShot(t,.5,.06,"bandpass",800,2600,sfxBus);break;
   case"morse":osc("sine",740,t,c.a,.05,sfxBus);break;
   case"click":noiseShot(t,.03,.14,"highpass",2500,0,sfxBus);break;
   case"page":noiseShot(t,.35,.12,"bandpass",600,2400,sfxBus);break;
@@ -240,7 +179,7 @@ function fire(c){
   case"heart":osc("sine",56,t,.13,.24,sfxBus);osc("sine",50,t+.14,.11,.16,sfxBus);break;
   case"tick":noiseShot(t,.015,.06,"bandpass",c.a||1800,0,sfxBus);break;
   case"pen":noiseShot(t,.02,.045,"highpass",3200,0,sfxBus);break;
-  case"reel":noiseShot(t,.05,.12,"bandpass",1200,600,sfxBus);break;
+  case"reel":noiseShot(t,.05,.12,"bandpass",1200,600,sfxBus);noiseShot(t,1.2,.025,"lowpass",260,900,sfxBus);break;
  }
 }
 function mkLoop(buf,fType,freq,g0,bus){const s=AC.createBufferSource();s.buffer=buf;s.loop=true;const f=AC.createBiquadFilter();f.type=fType;f.frequency.value=freq;const g=AC.createGain();g.gain.value=0;g.gain.setTargetAtTime(g0,AC.currentTime,.4);s.connect(f);f.connect(g);g.connect(bus);s.start();const L={s,g};ambLayers.push(L);return L;}
@@ -250,7 +189,7 @@ function trainLayer(on){if(!AC)return;if(on&&!ambTrain)ambTrain=mkLoop(BUF.clack
 function charkhaLayer(on){if(!AC)return;if(on&&!ambCharkha)ambCharkha=mkLoop(BUF.charkha,"lowpass",2400,.3,sfxBus);if(!on&&ambCharkha){stopLayer(ambCharkha);ambCharkha=null;}}
 function ambStop(){ambLayers.forEach(stopLayer);ambLayers=[];ambTrain=null;ambCharkha=null;}
 function setAmb(idx,t){
- if(!AC)return;ambStop();setStatic(idx===0?(t<NT(16)?.14:.03):0);
+ if(!AC)return;ambStop();setStatic(idx===0&&!radioOK()?(t<NT(16)?.14:.03):0);
  if(idx===0){mkDrone([50],.02);}
  if(idx===1){mkLoop(BUF.clack,"lowpass",500,.05,sfxBus);mkLoop(BUF.brown,"lowpass",420,.05,sfxBus);}
  if(idx===2){mkDrone([55,82.41],.05);mkLoop(BUF.brown,"lowpass",380,.06,sfxBus);}
@@ -258,6 +197,73 @@ function setAmb(idx,t){
  if(idx===4){mkLoop(BUF.tanpura,"lowpass",2600,.16,scoreBus);mkLoop(BUF.brown,"lowpass",420,.04,sfxBus);}
  if(idx===5){mkLoop(BUF.brown,"lowpass",500,.05,sfxBus);}
 }
+
+/* ============================================================
+   RECORDED AUDIO — the six dialogue recordings + the radio static recording.
+   The AudioContext clock is the film's master clock: ft follows AC.currentTime.
+   ============================================================ */
+const AUD={ready:false,vox:VOICES.map(v=>({...v,buf:null,dur:0,gain:1,start:0,node:null,done:false})),radio:{...RADIO,buf:null,dur:0,gain:1},failed:[]};
+let stat=null,clk=null,stallT=0,hidPaused=false,duckOn=false;
+const radioOK=()=>!!AUD.radio.buf;
+function decodeAB(ctx,ab){return new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej);});}
+function levelGain(buf,target,maxG){const d=buf.getChannelData(0),hop=Math.floor(buf.sampleRate*.02),fr=[];for(let i=0;i+hop<=d.length;i+=hop){let q=0;for(let j=i;j<i+hop;j++)q+=d[j]*d[j];fr.push(Math.sqrt(q/hop));}fr.sort((a,b)=>a-b);const p90=fr[Math.floor(fr.length*.9)]||.1;return clamp(target/p90,.3,maxG);}
+function applyTimeline(){
+ TL=buildTimeline(AUD.vox.map(v=>v.dur),AUD.radio.dur||RADIO.defDur);
+ TMAP=TL.TMAP;DUR=TL.DUR;
+ SCENES.forEach((sc0,i)=>{sc0.t0=TL.R0[i];sc0.t1=i<6?TL.R0[i+1]:DUR;});
+ SHOTS.forEach(sh=>{sh.t0=NT(sh.v0);sh.t1=NT(sh.v1);});
+ CAPS=TL.caps;AUD.vox.forEach((v,i)=>{v.start=TL.vStart[i];});
+ buildCues();buildIndex();
+ document.querySelectorAll(".meta div").forEach(d=>{const b=d.querySelector("b"),sp=d.querySelector("span");if(b&&sp&&/RUNTIME/.test(b.textContent))sp.textContent=fmt(DUR);});
+ const ih=document.querySelector("#scenes h3 span:last-child");if(ih)ih.textContent=Math.round(DUR)+" SECONDS";
+ if(view!=="film"&&view!=="end")$("tcode").textContent=fmt(0)+" / "+fmt(DUR);
+}
+async function loadAudio(){
+ let oc=null;try{const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;oc=new OC(1,1,48000);}catch(e){}
+ const one=async(f,target,maxG)=>{try{const r=await fetch(f.url);if(!r.ok)throw new Error("HTTP "+r.status);const ab=await r.arrayBuffer();f.buf=await decodeAB(oc,ab);f.dur=f.buf.duration;f.gain=levelGain(f.buf,target,maxG);}catch(e){f.buf=null;f.dur=0;AUD.failed.push(f.key);console.warn("[gumshuda] audio file could not load:",f.key,e&&e.message);}};
+ await Promise.all([...AUD.vox.map(v=>one(v,.2,14)),one(AUD.radio,.16,6)]);
+ applyTimeline();AUD.ready=true;
+}
+/* master clock */
+function clockAt(t){ft=t;clk=AC?{ft:t,ac:AC.currentTime}:null;stallT=0;}
+function clockTick(dt){
+ if(!clk||!AC){ft+=dt;return;}
+ if(AC.state==="running"){stallT=0;ft=clk.ft+(AC.currentTime-clk.ac);}
+ else{stallT+=dt;if(stallT>1.5){ft+=dt;clk={ft,ac:AC.currentTime};}}
+}
+/* dialogue: one recording per reel, started at the right offset for the current film time */
+function voxStop(fade){if(!AC)return;const t=AC.currentTime;AUD.vox.forEach(v=>{v.done=false;if(v.node){const n=v.node;v.node=null;try{n.g.gain.cancelScheduledValues(t);n.g.gain.setValueAtTime(n.g.gain.value,t);n.g.gain.linearRampToValueAtTime(0,t+fade);n.s.stop(t+fade+.02);}catch(e){}}});}
+function voxSched(){
+ if(!AC||!playing||AC.state!=="running")return;
+ const now=AC.currentTime;
+ AUD.vox.forEach(v=>{
+  if(!v.buf||v.done)return;
+  const rel=ft-v.start;if(rel<-.6)return;
+  v.done=true;if(rel>=v.dur-.05)return;
+  const when=now+Math.max(0,-rel),off=Math.max(0,rel);
+  const src=AC.createBufferSource();src.buffer=v.buf;const g=AC.createGain();
+  g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(v.gain,when+(off>0?.08:.015));
+  src.connect(g);g.connect(voiceBus);src.start(when,off);
+  v.node={s:src,g};src.onended=()=>{if(v.node&&v.node.s===src)v.node=null;};
+ });
+ const talk=AUD.vox.some(v=>v.buf&&ft>=v.start&&ft<v.start+v.dur);
+ if(talk!==duckOn){duckOn=talk;bed.gain.setTargetAtTime(talk?.6:1,now,.35);}
+}
+/* the real radio static recording (opening only), on the SOUND FX bus */
+function staticStop(fade){if(!stat||!AC)return;const n=stat;stat=null;const t=AC.currentTime;try{n.g.gain.cancelScheduledValues(t);n.g.gain.setValueAtTime(n.g.gain.value,t);n.g.gain.linearRampToValueAtTime(0,t+fade);n.s.stop(t+fade+.02);}catch(e){}}
+function staticStart(off){
+ if(!AC||!radioOK())return;staticStop(.05);
+ const R=AUD.radio,t=AC.currentTime,src=AC.createBufferSource();src.buffer=R.buf;src.loop=!!(TL&&TL.staticLoop);
+ const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(R.gain,t+(off>.05?.12:.03));
+ src.connect(g);g.connect(sfxBus);src.start(t,src.loop?off%R.dur:Math.min(off,R.dur-.01));
+ stat={s:src,g};
+}
+function staticFadeSched(){ // hold under the first words, then fade out smoothly
+ if(!stat||!AC||!TL)return;const now=AC.currentTime,fs=now+(TL.staticFadeStart-ft),fe=now+(TL.staticFadeEnd-ft);
+ if(fs<now+.15){staticStop(.4);return;}
+ stat.g.gain.setValueAtTime(AUD.radio.gain,fs);stat.g.gain.linearRampToValueAtTime(0,fe);try{stat.s.stop(fe+.05);}catch(e){}
+}
+const staticWanted=t=>radioOK()&&TL&&t<TL.staticFadeStart-.3;
 
 /* ============================================================
    CANVAS RENDERERS — the archival reels, drawn live
@@ -818,6 +824,7 @@ function syncDOM(){
  $("playIco").classList.toggle("hidden",playing);$("pauseIco").classList.toggle("hidden",!playing);
 }
 function processFrame(dt){
+ voxSched();
  while(ci<CUES.length&&CUES[ci].t<=ft){const c=CUES[ci++];if(ft-c.t<.6)fire(c);}
  const idx=curScene;
  if((idx===5||(idx===1&&ft>NT(54)))&&ft>=nextBird){fire({f:"birds"});nextBird=ft+.7+Math.random()*1.8;}
@@ -841,9 +848,9 @@ function loop(now){
   leaderT+=dt;const n=Math.max(1,3-Math.floor(leaderT));
   if(n!==leaderN){leaderN=n;if(AC)osc("sine",1000,AC.currentTime,.14,.12,sfxBus);}
   drawLeader();drawFX(dt);
-  if(leaderT>=3.05)startFilm();
+  if(leaderT>=3.05){if(AUD.ready)startFilm();else leaderT=3;} // wait for the recordings to decode
  }else if(view==="film"){
-  if(playing){ft+=dt;processFrame(dt);}
+  if(playing){clockTick(dt);processFrame(dt);}
   drawScene();drawFX(dt);syncDOM();
   if(ft>=DUR)finish();
  }
@@ -864,6 +871,8 @@ function showView(v){
 function roll(at){
  initAudio();if(AC&&AC.state==="suspended")AC.resume();
  pendingSeek=(at==null)?null:at;
+ voxStop(.2);staticStop(.2);
+ if(at==null||staticWanted(at))staticStart(0); // the radio recording starts on the click, from its beginning
  $("endcard").classList.remove("show");
  leaderT=0;leaderN=4;projLevel=.7;applyMix();
  $("skipLeader").classList.remove("hidden");
@@ -874,6 +883,7 @@ function startFilm(){
  showView("film");projLevel=1;applyMix();
  ft=0;ci=0;curScene=-1;lastShot=null;lastCapKey=-1;lastSec=-1;playing=true;
  resetSchedulers(0);irisAge=0;
+ clockAt(0);if(pendingSeek==null){if(!stat)staticStart(0);staticFadeSched();}voxSched();
  if(pendingSeek!=null){const p=pendingSeek;pendingSeek=null;seekTo(p);}
 }
 function resetSchedulers(t){nextBird=t;nextHeart=t;nextTick=t;nextPen=t;while(ci<CUES.length&&CUES[ci].t<=t)ci++;}
@@ -884,6 +894,9 @@ function seekTo(t){
  ft=t;ci=0;resetSchedulers(t);curScene=-1;lastShot=null;lastCapKey=-1;lastSec=-1;
  SHOTS.forEach(s=>{if(s.v)try{s.v.pause();}catch(e){}});
  playing=true;if(AC&&AC.state==="suspended")AC.resume();
+ voxStop(.12);staticStop(.25);clockAt(t);
+ if(staticWanted(t)){staticStart(t);staticFadeSched();} // past the opening the static never plays
+ voxSched();
  irisAge=0;
 }
 function pausePlay(){
@@ -895,7 +908,7 @@ function pausePlay(){
 }
 function finish(){
  if(view==="end")return;
- playing=false;ft=DUR;ambStop();projLevel=0;setStatic(0);applyMix();
+ playing=false;ft=DUR;ambStop();voxStop(.4);staticStop(.3);projLevel=0;setStatic(0);applyMix();
  SHOTS.forEach(s=>{if(s.v)try{s.v.pause();}catch(e){}});
  showView("film");view="end";
  $("readout").textContent="॥ समाप्त · FIN ॥";
@@ -906,7 +919,8 @@ function finish(){
  $("pausedStamp").classList.add("hidden");
 }
 function backToLobby(){
- playing=false;ambStop();projLevel=.22;setStatic(0);applyMix();
+ playing=false;ambStop();voxStop(.4);staticStop(.3);projLevel=.22;setStatic(0);applyMix();
+ if(AC&&AC.state==="suspended")AC.resume();
  SHOTS.forEach(s=>{if(s.v)try{s.v.pause();}catch(e){}});
  $("endcard").classList.remove("show");
  showView("lobby");window.scrollTo({top:0,behavior:"smooth"});
@@ -945,7 +959,7 @@ function buildIndex(){
  document.querySelectorAll(".idxrow").forEach(b=>b.addEventListener("click",()=>roll(parseFloat(b.dataset.t))));
  $("chips").innerHTML=SCENES.map((s,i)=>`<button class="chip" data-t="${s.t0}"><b>${DEV[i]}</b>${s.hi}</button>`).join("");
  document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>seekTo(parseFloat(b.dataset.t))));
- const strip=$("strip");SCENES.forEach(s=>{if(s.t0>0){const t=document.createElement("div");t.className="tick";t.style.left=(s.t0/DUR*100)+"%";strip.appendChild(t);}});
+ const strip=$("strip");strip.querySelectorAll(".tick").forEach(e=>e.remove());SCENES.forEach(s=>{if(s.t0>0){const t=document.createElement("div");t.className="tick";t.style.left=(s.t0/DUR*100)+"%";strip.appendChild(t);}});
 }
 function buildAmbience(){
  document.querySelectorAll("[data-bulbs]").forEach(el=>{el.innerHTML=Array.from({length:26},(_,i)=>`<i style="animation-delay:${(i*.13)%1.6}s"></i>`).join("");});
@@ -1020,10 +1034,13 @@ function bindEvents(){
   else if(e.key==="ArrowRight"){e.preventDefault();if(view==="film"){if(e.shiftKey)$("nextBtn").click();else seekTo(ft+5);}}
   else if(e.key==="ArrowLeft"){e.preventDefault();if(view==="film"){if(e.shiftKey)$("prevBtn").click();else seekTo(ft-5);}}
  });
- document.addEventListener("visibilitychange",()=>{if(document.hidden&&view==="film"&&playing)pausePlay();});
+ document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){if(view==="film"&&playing){pausePlay();hidPaused=true;}else if(view==="leader"&&AC)AC.suspend();}
+  else{if(hidPaused){hidPaused=false;if(view==="film"&&!playing)pausePlay();}else if(view==="leader"&&AC)AC.resume();}
+ });
 }
 
 /* ---------------- init ---------------- */
-buildLobbyPoster();buildIndex();buildAmbience();bindBooth();bindEvents();syncBoothUI();showView("lobby");
+buildLobbyPoster();applyTimeline();buildAmbience();bindBooth();bindEvents();syncBoothUI();showView("lobby");loadAudio();
 try{if(document.fonts)["58px Yatra One","52px Rozha One","15px Tiro Devanagari Hindi","15px Special Elite"].forEach(f=>document.fonts.load(f));}catch(e){}
 }

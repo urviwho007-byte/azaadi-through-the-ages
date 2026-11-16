@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Audio-driven film timeline.
    The recordings are the master clock: each reel lasts lead-in + its recording's real (decoded) length + tail,
    and every subtitle is pinned to the moment its words are spoken inside that recording.
