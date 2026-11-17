@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ध्वनि सफ़ाई · AUDIO CLEANER — गुमशुदा: आज़ादी</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Rozha+One&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b0806;--nitrate:#120d08;--surface:#1a130c;--surface2:#241a10;
+  --paper:#e8d9b5;--soft:#c4a878;--dim:#9d8760;--line:#5c4827;
+  --brass:#d9a441;--amber:#e8b64c;--stamp:#c2452a;--ok:#6f9c5a;--info:#6f8fc2;
+  --notice:"Special Elite","Courier New",monospace;
+  --body:"Tiro Devanagari Hindi",Georgia,serif;
+  --display:"Rozha One",Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(120% 80% at 88% -12%,rgba(217,164,65,.16),transparent 55%),
+    radial-gradient(110% 90% at 4% 108%,rgba(194,69,42,.14),transparent 58%),
+    linear-gradient(178deg,#1a130c 0%,#120d08 52%,#0b0806 100%);
+  background-attachment:fixed;color:var(--paper);font-family:var(--notice);
+  min-height:100vh;padding-left:20px;
+}
+body::before{content:"";position:fixed;left:0;top:0;bottom:0;width:20px;z-index:60;
+  background-color:#060402;border-right:1px solid var(--line);
+  background-image:radial-gradient(circle at 10px 8px,#1a130c 0 2.6px,rgba(0,0,0,0) 3.1px);
+  background-size:20px 16px}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:59;opacity:.07;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+::selection{background:var(--stamp);color:var(--paper)}
+*{scrollbar-width:thin;scrollbar-color:var(--line) var(--nitrate)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--nitrate);border-left:1px dashed var(--line)}
+::-webkit-scrollbar-thumb{background:var(--line);border:2px solid var(--nitrate);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:var(--brass)}
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:12px 20px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(26,19,12,.97),rgba(11,8,6,.94));backdrop-filter:blur(7px)}
+.mark{display:flex;align-items:baseline;gap:10px;flex:1;min-width:210px}
+.mark h1{margin:0;font-family:var(--display);font-size:26px;font-weight:400;line-height:1}
+.mark span{font-size:10px;letter-spacing:.24em;color:var(--brass)}
+.lamp{width:9px;height:9px;border-radius:50%;background:var(--brass);box-shadow:0 0 10px var(--brass);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+#muteBtn{display:flex;align-items:center;gap:9px;padding:9px 15px;border-radius:3px;cursor:pointer;
+  border:1px solid var(--ok);background:rgba(111,156,90,.12);color:var(--paper);font:inherit;font-size:11px;letter-spacing:.12em;transition:.18s}
+#muteBtn i{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 9px var(--ok)}
+#muteBtn.off{border-color:var(--stamp);background:rgba(194,69,42,.14)}
+#muteBtn.off i{background:var(--stamp);box-shadow:0 0 9px var(--stamp)}
+#muteBtn:hover{transform:translateY(-1px)}
+button:focus-visible,input:focus-visible,select:focus-visible,.drop:focus-visible,.wave:focus-visible{outline:2px dashed var(--brass);outline-offset:3px}
+.wrap{max-width:1340px;margin:0 auto;padding:22px 20px 60px;display:grid;grid-template-columns:1fr 312px;gap:22px;align-items:start}
+.stage{display:flex;flex-direction:column;gap:17px;min-width:0}
+.card{border:1px solid var(--line);border-radius:4px;background:linear-gradient(178deg,var(--surface2),var(--surface));
+  padding:15px 16px 16px;position:relative;overflow:hidden;animation:rise .55s cubic-bezier(.22,.9,.28,1) both}
+.card:nth-of-type(2){animation-delay:.07s}.card:nth-of-type(3){animation-delay:.14s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--brass),var(--stamp))}
+.chead{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:10px}
+.tag{width:27px;height:27px;flex:none;display:grid;place-items:center;border-radius:50%;border:1.5px solid var(--brass);color:var(--brass);font-family:var(--display);font-size:15px}
+.ctitle{flex:1;min-width:140px}
+.ctitle b{display:block;font-size:13px;font-weight:400;letter-spacing:.03em}
+.ctitle em{font-style:normal;font-size:9.5px;letter-spacing:.17em;color:var(--dim)}
+.pill{font-size:9px;letter-spacing:.15em;padding:3px 8px;border-radius:2px;border:1px solid var(--line);color:var(--soft);white-space:nowrap}
+.pill.ok{border-color:var(--ok);color:var(--ok)}.pill.bad{border-color:var(--stamp);color:var(--stamp)}.pill.wait{border-color:var(--amber);color:var(--amber)}
+.srcrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.src{flex:1 1 150px;padding:9px 11px;border:1px solid var(--line);border-radius:3px;background:var(--nitrate);color:var(--soft);font:inherit;font-size:10.5px;letter-spacing:.07em;cursor:pointer;text-align:left;transition:.16s}
+.src em{font-style:normal;display:block;font-size:8.5px;letter-spacing:.15em;color:var(--dim);margin-top:2px}
+.src[aria-pressed="true"]{border-color:var(--brass);color:var(--paper);background:rgba(217,164,65,.12)}
+.src:hover{border-color:var(--brass)}
+.path{font-size:10px;color:var(--info);word-break:break-all;margin:0 0 10px;line-height:1.5}
+.drop{border:1.5px dashed var(--line);border-radius:3px;padding:16px;text-align:center;cursor:pointer;transition:.18s;background:rgba(11,8,6,.4)}
+.drop:hover,.drop.over{border-color:var(--brass);background:rgba(217,164,65,.09)}
+.drop p{margin:0;font-family:var(--body);font-size:13px;color:var(--soft);line-height:1.6}
+.drop b{color:var(--brass)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:7px;margin:11px 0}
+.metric{border:1px dashed var(--line);border-radius:3px;padding:6px 8px;background:rgba(11,8,6,.5)}
+.metric span{display:block;font-size:8.5px;letter-spacing:.15em;color:var(--dim);margin-bottom:3px}
+.metric b{font-size:13px;font-weight:400;color:var(--paper)}
+.metric.warn b{color:var(--amber)}.metric.bad b{color:var(--stamp)}.metric.good b{color:var(--ok)}
+.wave{position:relative;height:96px;border:1px solid var(--line);border-radius:3px;background:#080604;cursor:crosshair;overflow:hidden}
+.wave canvas{display:block;width:100%;height:100%}
+.wave .hint{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;letter-spacing:.16em;color:var(--dim);pointer-events:none;text-align:center;padding:0 10px}
+.wlabel{font-size:9px;letter-spacing:.18em;color:var(--dim);margin:0 0 5px}
+.spectrum{height:74px;border:1px solid var(--line);border-radius:3px;background:#080604;overflow:hidden;margin-top:11px}
+.spectrum canvas{display:block;width:100%;height:100%}
+.transport{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.play{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:3px;cursor:pointer;
+  border:1px solid var(--brass);background:rgba(217,164,65,.13);color:var(--paper);font:inherit;font-size:11px;letter-spacing:.12em;transition:.16s}
+.play:hover:not(:disabled){background:rgba(217,164,65,.26);transform:translateY(-1px)}
+.play:disabled{opacity:.35;cursor:not-allowed}
+.play.playing{border-color:var(--stamp);background:rgba(194,69,42,.2)}
+.ab{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.ab button{padding:9px 14px;background:var(--nitrate);color:var(--soft);border:0;font:inherit;font-size:10px;letter-spacing:.12em;cursor:pointer;transition:.16s}
+.ab button[aria-pressed="true"]{background:var(--brass);color:var(--ink)}
+.ab button:disabled{opacity:.35;cursor:not-allowed}
+.tc{font-size:11px;color:var(--soft);letter-spacing:.08em}
+.progress{height:6px;border:1px solid var(--line);border-radius:4px;background:#080604;overflow:hidden;margin-top:11px}
+.progress i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--ok),var(--brass) 60%,var(--stamp));transition:width .18s}
+.verdict{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:4px;padding:13px 16px;
+  background:linear-gradient(100deg,rgba(217,164,65,.10),rgba(26,19,12,.6));animation:rise .5s cubic-bezier(.22,.9,.28,1) both}
+.verdict.bad{border-left-color:var(--stamp);background:linear-gradient(100deg,rgba(194,69,42,.14),rgba(26,19,12,.6))}
+.verdict.good{border-left-color:var(--ok);background:linear-gradient(100deg,rgba(111,156,90,.12),rgba(26,19,12,.6))}
+.verdict h2{margin:0 0 6px;font-size:12px;letter-spacing:.2em;color:var(--brass);font-weight:400}
+.verdict.bad h2{color:var(--stamp)}.verdict.good h2{color:var(--ok)}
+.verdict p{margin:0;font-family:var(--body);font-size:14px;line-height:1.7}
+.verdict small{display:block;margin-top:6px;font-size:11px;color:var(--dim);line-height:1.6}
+.rack{position:sticky;top:82px;border:1px solid var(--line);border-radius:4px;background:linear-gradient(178deg,var(--surface2),var(--nitrate));padding:15px 15px 16px;animation:rise .6s cubic-bezier(.22,.9,.28,1) both}
+.rack h3{margin:0 0 4px;font-size:12px;letter-spacing:.19em;color:var(--brass);font-weight:400}
+.rack .sub{margin:0 0 14px;font-family:var(--body);font-size:11.5px;color:var(--dim);line-height:1.6}
+.ctl{margin-bottom:13px}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;letter-spacing:.06em;margin-bottom:5px}
+.ctl label em{font-style:normal;font-size:8.5px;letter-spacing:.15em;color:var(--dim)}
+.ctl label b{color:var(--brass);font-weight:400;font-size:11.5px}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:20px;background:transparent;cursor:pointer;display:block}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--line),var(--brass) 62%,var(--stamp))}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(90deg,var(--line),var(--brass) 62%,var(--stamp))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-5.5px;border-radius:50%;background:var(--paper);border:2px solid var(--brass);box-shadow:0 0 8px rgba(217,164,65,.55);transition:transform .14s}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--paper);border:2px solid var(--brass)}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.18)}
+.toggles{display:flex;gap:7px;margin:14px 0 12px}
+.tg{flex:1;display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid var(--line);border-radius:3px;background:var(--nitrate);color:var(--soft);font:inherit;font-size:10px;letter-spacing:.08em;cursor:pointer;transition:.16s}
+.tg i{width:9px;height:9px;border-radius:50%;border:1px solid var(--line);background:#241a10;flex:none;transition:.16s}
+.tg[aria-pressed="true"]{border-color:var(--brass);color:var(--paper)}
+.tg[aria-pressed="true"] i{background:var(--brass);box-shadow:0 0 8px var(--brass);border-color:var(--brass)}
+.tg:hover{border-color:var(--brass)}
+.acts{display:flex;flex-direction:column;gap:7px}
+.act{padding:10px 11px;border:1px dashed var(--line);border-radius:3px;background:transparent;color:var(--soft);font:inherit;font-size:10px;letter-spacing:.11em;cursor:pointer;transition:.16s;text-align:left}
+.act:hover:not(:disabled){border-style:solid;border-color:var(--stamp);color:var(--paper);background:rgba(194,69,42,.1)}
+.act:disabled{opacity:.35;cursor:not-allowed}
+.act.primary{border-style:solid;border-color:var(--brass);color:var(--paper);background:rgba(217,164,65,.14)}
+.act.primary:hover:not(:disabled){background:rgba(217,164,65,.28);border-color:var(--brass)}
+.keys{margin:13px 0 0;padding-top:11px;border-top:1px dashed var(--line);font-size:9.5px;color:var(--dim);line-height:1.9}
+.keys kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;padding:1px 5px;background:var(--nitrate);color:var(--soft);font-family:var(--notice);font-size:9px}
+.log{margin-top:12px;max-height:140px;overflow-y:auto;border-top:1px dashed var(--line);padding-top:9px;font-size:9.5px;line-height:1.8;color:var(--dim)}
+.log div{border-bottom:1px dotted rgba(92,72,39,.4);padding:2px 0}
+.log b{color:var(--soft);font-weight:400}
+.log .e{color:var(--stamp)}.log .s{color:var(--ok)}
+.steps{max-width:1340px;margin:0 auto;padding:0 20px 56px}
+.steps ol{margin:0;padding-left:20px;font-family:var(--body);font-size:13.5px;line-height:2;color:var(--soft)}
+.steps code{font-family:var(--notice);font-size:11.5px;background:var(--nitrate);border:1px solid var(--line);border-radius:3px;padding:2px 6px;color:var(--brass);word-break:break-all}
+.steps h4{margin:0 0 10px;font-size:11px;letter-spacing:.2em;color:var(--brass);font-weight:400}
+.steps a{color:var(--brass)}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}.rack{position:static;order:-1}.mark h1{font-size:21px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <span class="lamp"></span>
+  <div class="mark"><h1>ध्वनि सफ़ाई</h1><span>AUDIO CLEANER · REEL ४</span></div>
+  <button id="muteBtn" aria-pressed="false"><i></i><span id="muteLbl">ध्वनि ON · SOUND ON</span></button>
+</header>
+
+<div class="wrap">
+  <div class="stage">
+    <div class="verdict" id="verdict">
+      <h2>तैयार · READY</h2>
+      <p>पुरानी आवाज़ लोड हो रही है…</p>
+      <small>Loading prince's audio straight from the film. Nothing is uploaded anywhere — all cleaning happens in your browser.</small>
+    </div>
+
+    <div class="card">
+      <div class="chead"><span class="tag">१</span><div class="ctitle"><b>स्रोत · SOURCE</b><em>WHICH RECORDING TO CLEAN</em></div><span class="pill wait" id="pillSrc">लोड…</span></div>
+      <div class="srcrow">
+        <button class="src" id="srcOld" aria-pressed="true">पुरानी फ़िल्म फ़ाइल<em>OLD FILM ASSET</em></button>
+        <button class="src" id="srcMix" aria-pressed="false">अपलोड किया मिक्स<em>UPLOADED MIX</em></button>
+        <button class="src" id="srcLocal" aria-pressed="false">लोकल फ़ाइल<em>DROP A FILE</em></button>
+      </div>
+      <p class="path" id="pathSrc"></p>
+      <div class="drop" id="drop" tabindex="0" role="button" hidden>
+        <p><b>यहाँ फ़ाइल छोड़ें</b> या क्लिक करके चुनें<br>Drop any audio file here, or click to choose. It stays on your device.</p>
+      </div>
+      <input type="file" id="file" accept="audio/*" hidden>
+      <div class="metrics" id="metSrc"></div>
+      <p class="wlabel">मूल तरंग · ORIGINAL WAVEFORM</p>
+      <div class="wave" id="waveSrc" tabindex="0"><canvas></canvas><div class="hint">लोड हो रहा…</div></div>
+    </div>
+
+    <div class="card">
+      <div class="chead"><span class="tag">२</span><div class="ctitle"><b>सुनें · LISTEN A/B</b><em>ORIGINAL AGAINST CLEANED</em></div><span class="pill" id="pillAB">मूल</span></div>
+      <div class="transport">
+        <button class="play" id="playBtn" disabled>▶ चलाएँ · PLAY</button>
+        <div class="ab"><button id="abA" aria-pressed="true">मूल · A</button><button id="abB" aria-pressed="false" disabled>साफ़ · B</button></div>
+        <span class="tc" id="tc">0:00 / 0:00</span>
+      </div>
+      <div class="spectrum"><canvas id="specCv"></canvas></div>
+      <div class="progress"><i id="prog"></i></div>
+    </div>
+
+    <div class="card">
+      <div class="chead"><span class="tag">३</span><div class="ctitle"><b>साफ़ किया हुआ · CLEANED</b><em>RENDER, THEN DOWNLOAD</em></div><span class="pill" id="pillOut">अभी नहीं</span></div>
+      <div class="metrics" id="metOut"></div>
+      <p class="wlabel">साफ़ तरंग · CLEANED WAVEFORM</p>
+      <div class="wave" id="waveOut"><canvas></canvas><div class="hint">RENDER दबाएँ · PRESS RENDER</div></div>
+      <div class="transport"><button class="play" id="dlBtn" disabled>▤ WAV डाउनलोड · DOWNLOAD</button><span class="tc" id="preserve"></span></div>
+    </div>
+  </div>
+
+  <aside class="rack">
+    <h3>◆ नियंत्रण · CLEANING RACK</h3>
+    <p class="sub">बदलाव के बाद <b>RENDER</b> दबाएँ, फिर A/B से तुलना करें।<br>Change a dial, press RENDER, then compare A against B.</p>
+    <div class="ctl"><label for="rRed">शोर हटाएँ <em>NOISE REDUCTION</em><b id="oRed">65</b></label><input id="rRed" type="range" min="0" max="100" value="65"></div>
+    <div class="ctl"><label for="rClar">स्पष्टता <em>CLARITY EQ</em><b id="oClar">70</b></label><input id="rClar" type="range" min="0" max="100" value="70"></div>
+    <div class="ctl"><label for="rComp">दबाव <em>COMPRESSION</em><b id="oComp">45</b></label><input id="rComp" type="range" min="0" max="100" value="45"></div>
+    <div class="ctl"><label for="rOut">स्तर <em>OUTPUT dB</em><b id="oOut">0</b></label><input id="rOut" type="range" min="-6" max="6" step="0.5" value="0"></div>
+    <div class="ctl"><label for="rVol">आवाज़ <em>MONITOR VOLUME</em><b id="oVol">80</b></label><input id="rVol" type="range" min="0" max="100" value="80"></div>
+    <div class="toggles">
+      <button class="tg" id="tgMono" aria-pressed="true"><i></i>मोनो · MONO</button>
+      <button class="tg" id="tgLoop" aria-pressed="false"><i></i>लूप · LOOP</button>
+    </div>
+    <div class="acts">
+      <button class="act primary" id="btnRender" disabled>◆ साफ़ करें · RENDER CLEANED AUDIO</button>
+      <button class="act" id="btnReset">⟲ रीसेट · RESET DIALS</button>
+      <button class="act" id="btnReload">↻ स्रोत फिर लोड · RELOAD SOURCE</button>
+    </div>
+    <p class="keys"><kbd>SPACE</kbd> चलाएँ/रोकें &nbsp; <kbd>B</kbd> A/B<br><kbd>M</kbd> ध्वनि बंद &nbsp; <kbd>R</kbd> RENDER</p>
+    <div class="log" id="log"></div>
+  </aside>
+</div>
+
+<div class="steps">
+  <h4>◆ डाउनलोड के बाद · AFTER YOU DOWNLOAD</h4>
+  <ol>
+    <li>GitHub → <code>public/audio/</code> → Add file → Upload files → upload <code>prince-clean-v3.wav</code> → commit to main.</li>
+    <li>Open <code>src/film/timeline.ts</code> → pencil → find <code>key: "prince"</code> → replace that whole line with:<br>
+      <code>{ key: "prince", url: "/audio/prince-clean-v3.wav", reel: 3, lead: 1.5, tail: 1, defDur: 38.9 },</code></li>
+    <li>Commit → Lovable <b>Publish → Update</b> (free, no credits).</li>
+    <li>Open the film in an incognito window → reel <b>४ आज़ादी का अर्थ</b>. Subtitles stay in sync — length is preserved exactly.</li>
+  </ol>
+  <p style="font-family:var(--body);font-size:12.5px;color:var(--dim);line-height:1.8">लाल पट्टियाँ = फ़ाइल के भीतर चुप हिस्से। सफ़ाई आवाज़ की फुसफुसाहट हटाती है, मगर शब्दों का समय नहीं बदलती।<br>
+  Red bands are silent gaps inside the file. Cleaning removes hiss, never moves the words. <a href="/">◂ फ़िल्म · BACK TO THE FILM</a></p>
+</div>
+
+<script>
+(function(){
+"use strict";
+var OLD_URL="/__l5e/assets-v1/9507d734-4f85-4f5b-a17f-878a74800774/prince_audio_the_questions_clean.mp3";
+var MIX_URL="/audio/prince-questions-mix.mp3.mp3";
+var DL_NAME="prince-clean-v3.wav";
+var $=function(id){return document.getElementById(id);};
+var clamp=function(v,a,b){return Math.max(a,Math.min(b,v));};
+var fmt=function(t){t=Math.max(0,t||0);return Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0");};
+var db=function(v){return v>0?Math.max(-99,20*Math.log10(v)):-99;};
+var tick=function(){return new Promise(function(r){setTimeout(r,0);});};
+
+var S={red:65,clar:70,comp:45,out:0,vol:80,mono:true,loop:false,muted:false,ab:"A",src:"old"};
+var srcBuf=null,srcInfo=null,outBuf=null,outInfo=null,srcName="",busy=false;
+var ctx=null,master=null,ana=null,anaFreq=null,node=null,playing=false,startAt=0,startOff=0;
+
+function log(m,c){var el=$("log"),d=document.createElement("div");
+  d.innerHTML='<b>'+new Date().toLocaleTimeString()+'</b> <span class="'+(c||"")+'">'+m+'</span>';
+  el.insertBefore(d,el.firstChild);while(el.children.length>40)el.removeChild(el.lastChild);}
+
+function ensureCtx(){
+  if(ctx)return ctx;
+  var AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){log("Web Audio unavailable","e");return null;}
+  ctx=new AC();master=ctx.createGain();
+  ana=ctx.createAnalyser();ana.fftSize=2048;ana.smoothingTimeConstant=.75;
+  anaFreq=new Uint8Array(ana.frequencyBinCount);
+  ana.connect(master);master.connect(ctx.destination);
+  master.gain.value=S.muted?0:S.vol/100;
+  return ctx;
+}
+function activeBuf(){return S.ab==="B"&&outBuf?outBuf:srcBuf;}
+function stop(){
+  if(node){try{node.onended=null;node.stop();}catch(e){}try{node.disconnect();}catch(e){}node=null;}
+  playing=false;var b=$("playBtn");b.classList.remove("playing");b.textContent="▶ चलाएँ · PLAY";
+  drawWave("waveSrc",srcBuf,srcInfo);drawWave("waveOut",outBuf,outInfo);
+}
+function play(at){
+  var buf=activeBuf();if(!buf||busy)return;
+  if(!ensureCtx())return;
+  if(ctx.state==="suspended")ctx.resume();
+  var wasPlaying=playing;stop();
+  if(wasPlaying&&at===undefined)return;
+  var off=clamp(at===undefined?0:at,0,Math.max(0,buf.duration-.05));
+  node=ctx.createBufferSource();node.buffer=buf;node.loop=S.loop;
+  node.connect(ana);
+  node.onended=function(){if(!S.loop)stop();};
+  node.start(ctx.currentTime,off);
+  startAt=ctx.currentTime;startOff=off;playing=true;
+  var b=$("playBtn");b.classList.add("playing");b.textContent="■ रोकें · STOP";
+}
+function pos(){var b=activeBuf();if(!playing||!ctx||!b)return 0;
+  var p=startOff+(ctx.currentTime-startAt);return S.loop?p%b.duration:clamp(p,0,b.duration);}
+
+function FFT(n){
+  this.n=n;var bits=Math.round(Math.log2(n)),i,j,k,r;
+  this.rev=new Uint32Array(n);
+  for(i=0;i<n;i++){r=0;for(j=0;j<bits;j++)r=(r<<1)|((i>>j)&1);this.rev[i]=r;}
+  this.cos=new Float64Array(n/2);this.sin=new Float64Array(n/2);
+  for(k=0;k<n/2;k++){this.cos[k]=Math.cos(-2*Math.PI*k/n);this.sin[k]=Math.sin(-2*Math.PI*k/n);}
+}
+FFT.prototype.fwd=function(re,im){
+  var n=this.n,rev=this.rev,i,j,len,half,step,k,c,s,ar,ai,br,bi,tr,ti;
+  for(i=0;i<n;i++){j=rev[i];if(j>i){tr=re[i];re[i]=re[j];re[j]=tr;ti=im[i];im[i]=im[j];im[j]=ti;}}
+  for(len=2;len<=n;len<<=1){
+    half=len>>1;step=n/len;
+    for(i=0;i<n;i+=len){
+      for(k=0;k<half;k++){
+        c=this.cos[k*step];s=this.sin[k*step];
+        ar=re[i+k];ai=im[i+k];
+        br=re[i+k+half]*c-im[i+k+half]*s;
+        bi=re[i+k+half]*s+im[i+k+half]*c;
+        re[i+k]=ar+br;im[i+k]=ai+bi;
+        re[i+k+half]=ar-br;im[i+k+half]=ai-bi;
+      }
+    }
+  }
+};
+FFT.prototype.inv=function(re,im){
+  var n=this.n,i;
+  for(i=0;i<n;i++)im[i]=-im[i];
+  this.fwd(re,im);
+  for(i=0;i<n;i++){re[i]/=n;im[i]=-im[i]/n;}
+};
+
+function analyze(buf){
+  var d=buf.getChannelData(0),hop=Math.max(1,Math.floor(buf.sampleRate*.02)),fr=[],pk=0,i,j;
+  for(i=0;i+hop<=d.length;i+=hop){var q=0;for(j=i;j<i+hop;j++){var v=d[j];q+=v*v;var a=v<0?-v:v;if(a>pk)pk=a;}fr.push(Math.sqrt(q/hop));}
+  if(!fr.length)fr.push(0);
+  var sorted=fr.slice().sort(function(a,b){return a-b;});
+  var p90=sorted[Math.floor(sorted.length*.9)]||0,p10=sorted[Math.floor(sorted.length*.1)]||0;
+  var thr=Math.max(p10*2.2,.005),gaps=[],run=-1,voiced=0;
+  for(i=0;i<fr.length;i++){
+    if(fr[i]>=thr){voiced++;if(run>=0){if((i-run)*.02>=.25)gaps.push([run*.02,i*.02]);run=-1;}}
+    else if(run<0)run=i;
+  }
+  if(run>=0&&(fr.length-run)*.02>=.25)gaps.push([run*.02,fr.length*.02]);
+  var tot=gaps.reduce(function(s,g){return s+(g[1]-g[0]);},0);
+  return {dur:buf.duration,len:buf.length,rate:buf.sampleRate,ch:buf.numberOfChannels,peak:pk,rms:p90,floor:p10,gaps:gaps,gapTotal:tot,cover:fr.length?voiced/fr.length:0};
+}
+function metricHTML(a){
+  if(!a)return "";
+  var gc=a.gapTotal>1.2?"bad":(a.gapTotal>.4?"warn":"good");
+  var fc=db(a.floor)>-46?"bad":(db(a.floor)>-56?"warn":"good");
+  var cc=a.cover<.55?"bad":(a.cover<.75?"warn":"good");
+  return '<div class="metric"><span>अवधि DUR</span><b>'+a.dur.toFixed(2)+'s</b></div>'+
+    '<div class="metric"><span>शिखर PEAK</span><b>'+db(a.peak).toFixed(1)+' dB</b></div>'+
+    '<div class="metric"><span>स्तर RMS</span><b>'+db(a.rms).toFixed(1)+' dB</b></div>'+
+    '<div class="metric '+fc+'"><span>शोर FLOOR</span><b>'+db(a.floor).toFixed(1)+' dB</b></div>'+
+    '<div class="metric '+gc+'"><span>चुप GAPS</span><b>'+a.gaps.length+' · '+a.gapTotal.toFixed(1)+'s</b></div>'+
+    '<div class="metric '+cc+'"><span>वाणी SPEECH</span><b>'+Math.round(a.cover*100)+'%</b></div>';
+}
+
+async function denoise(x,sr,amount,onProg){
+  if(amount<=.005)return x.slice();
+  var N=2048,H=512,B=N/2+1,fft=new FFT(N),i,f,b;
+  var win=new Float64Array(N);
+  for(i=0;i<N;i++)win[i]=.5-.5*Math.cos(2*Math.PI*i/N);
+  var len=x.length,pad=N,padded=new Float64Array(len+2*pad);
+  padded.set(x,pad);
+  var nF=Math.ceil((padded.length-N)/H)+1;
+  var mags=new Array(nF),rms=new Float64Array(nF);
+  var re=new Float64Array(N),im=new Float64Array(N);
+  for(f=0;f<nF;f++){
+    var off=f*H;
+    for(i=0;i<N;i++){re[i]=(padded[off+i]||0)*win[i];im[i]=0;}
+    fft.fwd(re,im);
+    var m=new Float32Array(B),e=0;
+    for(b=0;b<B;b++){var mr=re[b],mi=im[b],mg=Math.sqrt(mr*mr+mi*mi);m[b]=mg;e+=mg*mg;}
+    mags[f]=m;rms[f]=Math.sqrt(e/B);
+    if(f%150===0){onProg(f/nF*.45);await tick();}
+  }
+  var idx=[];for(f=0;f<nF;f++)idx.push(f);
+  idx.sort(function(a,b){return rms[a]-rms[b];});
+  var nq=Math.max(4,Math.floor(nF*.12)),noise=new Float64Array(B);
+  for(f=0;f<nq;f++){var mm=mags[idx[f]];for(b=0;b<B;b++)noise[b]+=mm[b];}
+  for(b=0;b<B;b++)noise[b]/=nq;
+  var beta=2.4*amount,floor=Math.max(.03,.32-.27*amount);
+  var prev=new Float64Array(B);for(b=0;b<B;b++)prev[b]=1;
+  var out=new Float64Array(padded.length+N),g=new Float64Array(B),sm=new Float64Array(B);
+  for(f=0;f<nF;f++){
+    var o2=f*H;
+    for(i=0;i<N;i++){re[i]=(padded[o2+i]||0)*win[i];im[i]=0;}
+    fft.fwd(re,im);
+    var mg2=mags[f];
+    for(b=0;b<B;b++){
+      var v=mg2[b],raw=1-beta*noise[b]/(v+1e-9);
+      g[b]=raw<floor?floor:(raw>1?1:raw);
+    }
+    for(b=0;b<B;b++){
+      var l=g[b>0?b-1:0],r=g[b<B-1?b+1:B-1];
+      sm[b]=.25*l+.5*g[b]+.25*r;
+    }
+    for(b=0;b<B;b++){
+      var gg=.5*prev[b]+.5*sm[b];prev[b]=gg;
+      re[b]*=gg;im[b]*=gg;
+      if(b>0&&b<N/2){re[N-b]*=gg;im[N-b]*=gg;}
+    }
+    fft.inv(re,im);
+    for(i=0;i<N;i++)out[o2+i]+=re[i]*win[i];
+    if(f%150===0){onProg(.45+f/nF*.4);await tick();}
+  }
+  var res=new Float32Array(len),norm=1.5;
+  for(i=0;i<len;i++)res[i]=out[pad+i]/norm;
+  return res;
+}
+
+function toBuffer(chs,sr){
+  var c=new (window.AudioContext||window.webkitAudioContext)();
+  var b=c.createBuffer(chs.length,chs[0].length,sr);
+  for(var i=0;i<chs.length;i++)b.copyToChannel(chs[i],i);
+  try{c.close();}catch(e){}
+  return b;
+}
+async function postChain(chs,sr){
+  var OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  if(!OC)return chs;
+  var n=chs[0].length,oc=new OC(chs.length,n,sr);
+  var buf=oc.createBuffer(chs.length,n,sr);
+  for(var i=0;i<chs.length;i++)buf.copyToChannel(chs[i],i);
+  var s=oc.createBufferSource();s.buffer=buf;
+  var c=S.clar/100,k=S.comp/100;
+  var hp=oc.createBiquadFilter();hp.type="highpass";hp.frequency.value=70+50*c;hp.Q.value=.7;
+  var mud=oc.createBiquadFilter();mud.type="peaking";mud.frequency.value=330;mud.Q.value=1.1;mud.gain.value=-4.5*c;
+  var pres=oc.createBiquadFilter();pres.type="peaking";pres.frequency.value=2900;pres.Q.value=.9;pres.gain.value=5.5*c;
+  var air=oc.createBiquadFilter();air.type="highshelf";air.frequency.value=7000;air.gain.value=2*c;
+  var comp=oc.createDynamicsCompressor();
+  comp.threshold.value=-10-16*k;comp.knee.value=14;comp.ratio.value=1+3.5*k;comp.attack.value=.005;comp.release.value=.18;
+  s.connect(hp);hp.connect(mud);mud.connect(pres);pres.connect(air);air.connect(comp);comp.connect(oc.destination);
+  s.start(0);
+  var rendered=await oc.startRendering();
+  var res=[];for(i=0;i<rendered.numberOfChannels;i++)res.push(rendered.getChannelData(i).slice());
+  return res;
+}
+function normalize(chs){
+  var pk=0,i,j;
+  for(i=0;i<chs.length;i++)for(j=0;j<chs[i].length;j++){var a=Math.abs(chs[i][j]);if(a>pk)pk=a;}
+  var target=Math.min(.99,.89*Math.pow(10,S.out/20));
+  var g=pk>0?target/pk:1;
+  for(i=0;i<chs.length;i++)for(j=0;j<chs[i].length;j++)chs[i][j]=clamp(chs[i][j]*g,-1,1);
+  return chs;
+}
+function wavBlob(chs,sr){
+  var nCh=chs.length,len=chs[0].length,bytes=44+len*nCh*2;
+  var ab=new ArrayBuffer(bytes),v=new DataView(ab),o=0,i,c;
+  function str(s){for(var k=0;k<s.length;k++)v.setUint8(o++,s.charCodeAt(k));}
+  function u32(x){v.setUint32(o,x,true);o+=4;}
+  function u16(x){v.setUint16(o,x,true);o+=2;}
+  str("RIFF");u32(bytes-8);str("WAVE");str("fmt ");u32(16);u16(1);u16(nCh);
+  u32(sr);u32(sr*nCh*2);u16(nCh*2);u16(16);str("data");u32(len*nCh*2);
+  for(i=0;i<len;i++)for(c=0;c<nCh;c++){var s=clamp(chs[c][i],-1,1);v.setInt16(o,s<0?s*0x8000:s*0x7FFF,true);o+=2;}
+  return new Blob([ab],{type:"audio/wav"});
+}
+
+async function render(){
+  if(!srcBuf||busy)return;
+  busy=true;stop();
+  $("btnRender").disabled=true;$("dlBtn").disabled=true;$("abB").disabled=true;
+  $("pillOut").className="pill wait";$("pillOut").textContent="काम जारी…";
+  $("waveOut").querySelector(".hint").textContent="साफ़ हो रहा है… PROCESSING";
+  var sr=srcBuf.sampleRate,n=srcBuf.length,chs=[],i;
+  log("RENDER शुरू · "+n+" नमूने");
+  try{
+    if(S.mono||srcBuf.numberOfChannels===1){
+      var m=new Float32Array(n);
+      for(i=0;i<srcBuf.numberOfChannels;i++){var d=srcBuf.getChannelData(i);for(var j=0;j<n;j++)m[j]+=d[j];}
+      for(j=0;j<n;j++)m[j]/=srcBuf.numberOfChannels;
+      chs=[await denoise(m,sr,S.red/100,function(p){$("prog").style.width=(p*100)+"%";})];
+    }else{
+      for(i=0;i<srcBuf.numberOfChannels;i++){
+        chs.push(await denoise(srcBuf.getChannelData(i),sr,S.red/100,function(p){$("prog").style.width=((i+p)/srcBuf.numberOfChannels*85)+"%";}));
+      }
+    }
+    $("prog").style.width="88%";await tick();
+    chs=await postChain(chs,sr);
+    $("prog").style.width="95%";await tick();
+    chs=normalize(chs);
+    outBuf=toBuffer(chs,sr);outInfo=analyze(outBuf);
+    $("metOut").innerHTML=metricHTML(outInfo);
+    $("pillOut").className="pill ok";$("pillOut").textContent="तैयार · READY";
+    $("waveOut").querySelector(".hint").textContent="";
+    $("preserve").textContent=outBuf.length===srcBuf.length?"अवधि सुरक्षित · TIMING PRESERVED ✓ "+outInfo.dur.toFixed(2)+"s":"अवधि बदली · LENGTH CHANGED";
+    $("prog").style.width="100%";
+    $("dlBtn").disabled=false;$("abB").disabled=false;
+    drawWave("waveOut",outBuf,outInfo);
+    var improvement=db(srcInfo.floor)-db(outInfo.floor);
+    setVerdict("good","साफ़ हो गया · CLEANED","Noise floor dropped by "+improvement.toFixed(1)+" dB. Press B to hear the cleaned version, then download the WAV.",
+      outInfo.gapTotal>srcInfo.gapTotal+.4?"Warning: new silent gaps appeared — lower NOISE REDUCTION and render again.":"Length is identical to the original, so every subtitle stays in sync.");
+    log("RENDER पूरा · शोर "+improvement.toFixed(1)+" dB कम","s");
+    setAB("B");
+  }catch(e){
+    $("pillOut").className="pill bad";$("pillOut").textContent="त्रुटि";
+    $("waveOut").querySelector(".hint").textContent="RENDER विफल";
+    log("RENDER विफल · "+(e&&e.message),"e");
+    setVerdict("bad","रेंडर विफल · RENDER FAILED","इस फ़ाइल पर प्रक्रिया नहीं हो सकी।","Try a lower NOISE REDUCTION value, or load the file as a local WAV/MP3. "+(e&&e.message||""));
+  }
+  busy=false;$("btnRender").disabled=false;
+  setTimeout(function(){$("prog").style.width="0%";},900);
+}
+
+function setVerdict(cls,hi,en,note){
+  var v=$("verdict");v.className="verdict "+cls;
+  v.innerHTML="<h2>"+hi+"</h2><p>"+en+"</p>"+(note?"<small>"+note+"</small>":"");
+}
+function setAB(k){
+  if(k==="B"&&!outBuf)return;
+  var wasPlaying=playing,at=pos();
+  S.ab=k;
+  $("abA").setAttribute("aria-pressed",String(k==="A"));
+  $("abB").setAttribute("aria-pressed",String(k==="B"));
+  $("pillAB").textContent=k==="A"?"मूल · ORIGINAL":"साफ़ · CLEANED";
+  $("pillAB").className="pill "+(k==="B"?"ok":"");
+  if(wasPlaying){stop();play(at);}else{stop();}
+  var b=activeBuf();if(b)$("tc").textContent=fmt(at)+" / "+fmt(b.duration);
+}
+
+function drawWave(id,buf,info){
+  var box=$(id);if(!box)return;
+  var cv=box.querySelector("canvas"),g=cv.getContext("2d");
+  var w=box.clientWidth,h=box.clientHeight,dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=Math.max(1,Math.floor(w*dpr));cv.height=Math.max(1,Math.floor(h*dpr));
+  g.setTransform(dpr,0,0,dpr,0,0);
+  g.fillStyle="#080604";g.fillRect(0,0,w,h);
+  if(!buf||!info)return;
+  var d=buf.getChannelData(0),n=d.length,mid=h/2,x,i;
+  g.strokeStyle="rgba(92,72,39,.5)";g.lineWidth=1;g.setLineDash([2,4]);
+  var step=info.dur>60?10:5;
+  for(var t=step;t<info.dur;t+=step){
+    x=Math.round(t/info.dur*w)+.5;
+    g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();
+    g.fillStyle="rgba(157,135,96,.8)";g.font='9px "Special Elite",monospace';g.fillText(t+"s",x+3,11);
+  }
+  g.setLineDash([]);
+  info.gaps.forEach(function(gp){
+    var x0=gp[0]/info.dur*w,x1=gp[1]/info.dur*w;
+    g.fillStyle="rgba(194,69,42,.26)";g.fillRect(x0,0,Math.max(1.5,x1-x0),h);
+  });
+  var grad=g.createLinearGradient(0,0,0,h);
+  if(id==="waveOut"){grad.addColorStop(0,"#8fc47a");grad.addColorStop(.5,"#6f9c5a");grad.addColorStop(1,"#d9a441");}
+  else{grad.addColorStop(0,"#e8b64c");grad.addColorStop(.5,"#d9a441");grad.addColorStop(1,"#c2452a");}
+  g.fillStyle=grad;
+  for(x=0;x<w;x++){
+    var a=Math.floor(x/w*n),b=Math.floor((x+1)/w*n),mn=1,mx=-1,j;
+    if(b<=a)b=a+1;
+    var stride=Math.max(1,Math.floor((b-a)/400));
+    for(j=a;j<b&&j<n;j+=stride){var v=d[j];if(v<mn)mn=v;if(v>mx)mx=v;}
+    if(mn>mx){mn=0;mx=0;}
+    g.fillRect(x,mid-mx*mid*.94,1,Math.max(1,(mx-mn)*mid*.94));
+  }
+  var isActive=(id==="waveSrc"&&S.ab==="A")||(id==="waveOut"&&S.ab==="B");
+  if(playing&&isActive){
+    var p=clamp(pos()/info.dur,0,1),px=p*w;
+    g.fillStyle="rgba(217,164,65,.2)";g.fillRect(0,0,px,h);
+    g.fillStyle="rgba(232,217,181,.95)";g.fillRect(px-1,0,2,h);
+  }
+}
+var peaks=new Float32Array(48);
+function drawSpec(){
+  var box=document.querySelector(".spectrum"),cv=$("specCv"),g=cv.getContext("2d");
+  var w=box.clientWidth,h=box.clientHeight,dpr=Math.min(2,window.devicePixelRatio||1);
+  if(cv.width!==Math.floor(w*dpr)||cv.height!==Math.floor(h*dpr)){
+    cv.width=Math.max(1,Math.floor(w*dpr));cv.height=Math.max(1,Math.floor(h*dpr));
+  }
+  g.setTransform(dpr,0,0,dpr,0,0);
+  g.fillStyle="#080604";g.fillRect(0,0,w,h);
+  if(ana&&playing)ana.getByteFrequencyData(anaFreq);
+  var bars=48,n=anaFreq?anaFreq.length:1024,i;
+  for(i=0;i<bars;i++){
+    var f0=Math.floor(Math.pow(i/bars,2)*n*.7),f1=Math.max(f0+1,Math.floor(Math.pow((i+1)/bars,2)*n*.7));
+    var sum=0,c=0;
+    for(var j=f0;j<f1&&j<n;j++){sum+=anaFreq?anaFreq[j]:0;c++;}
+    var v=playing&&c?sum/c/255:0;
+    peaks[i]=Math.max(v,peaks[i]*.9);
+    var bw=w/bars,bh=peaks[i]*h*.92;
+    var grad=g.createLinearGradient(0,h,0,h-bh);
+    grad.addColorStop(0,"#6f9c5a");grad.addColorStop(.6,"#d9a441");grad.addColorStop(1,"#c2452a");
+    g.fillStyle=grad;g.fillRect(i*bw+1,h-bh,bw-2,bh);
+    g.fillStyle="rgba(232,217,181,.55)";g.fillRect(i*bw+1,h-bh-2,bw-2,2);
+  }
+  g.strokeStyle="rgba(92,72,39,.6)";g.beginPath();g.moveTo(0,h-.5);g.lineTo(w,h-.5);g.stroke();
+}
+
+function setSrcUI(){
+  $("srcOld").setAttribute("aria-pressed",String(S.src==="old"));
+  $("srcMix").setAttribute("aria-pressed",String(S.src==="mix"));
+  $("srcLocal").setAttribute("aria-pressed",String(S.src==="local"));
+  $("drop").hidden=S.src!=="local";
+}
+function resetOut(){
+  outBuf=null;outInfo=null;
+  $("metOut").innerHTML="";$("preserve").textContent="";
+  $("pillOut").className="pill";$("pillOut").textContent="अभी नहीं";
+  $("waveOut").querySelector(".hint").textContent="RENDER दबाएँ · PRESS RENDER";
+  $("dlBtn").disabled=true;$("abB").disabled=true;setAB("A");
+  drawWave("waveOut",null,null);
+}
+function adopt(buf,name){
+  srcBuf=buf;srcInfo=analyze(buf);srcName=name;
+  $("pillSrc").className="pill ok";$("pillSrc").textContent="तैयार · OK";
+  $("metSrc").innerHTML=metricHTML(srcInfo);
+  $("waveSrc").querySelector(".hint").textContent="";
+  $("playBtn").disabled=false;$("btnRender").disabled=false;
+  $("tc").textContent="0:00 / "+fmt(srcInfo.dur);
+  resetOut();drawWave("waveSrc",srcBuf,srcInfo);
+  if(srcInfo.gapTotal>1.5||srcInfo.cover<.5){
+    setVerdict("bad","स्रोत में चुप हिस्से · SOURCE HAS GAPS",
+      "This recording already contains "+srcInfo.gaps.length+" silent gaps totalling "+srcInfo.gapTotal.toFixed(1)+"s (speech "+Math.round(srcInfo.cover*100)+"%).",
+      "Cleaning cannot restore missing words. Try the OLD FILM ASSET source, or drop a fresh local copy of the recording.");
+  }else{
+    setVerdict("","स्रोत तैयार · SOURCE LOADED",
+      "Loaded "+srcInfo.dur.toFixed(2)+"s · noise floor "+db(srcInfo.floor).toFixed(1)+" dBFS · speech "+Math.round(srcInfo.cover*100)+"%.",
+      "Set NOISE REDUCTION and press RENDER. Then press B to compare, and download the WAV.");
+  }
+  log("स्रोत तैयार · "+name+" · "+srcInfo.dur.toFixed(2)+"s","s");
+}
+function decodeAB(ab){
+  var OC=window.OfflineAudioContext||window.webkitOfflineAudioContext,c=null;
+  try{if(OC)c=new OC(1,1,48000);}catch(e){}
+  if(!c)c=ensureCtx();
+  if(!c)return Promise.reject(new Error("no decoder"));
+  return new Promise(function(res,rej){var p=c.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej);});
+}
+function loadURL(url,label){
+  stop();resetOut();
+  $("pillSrc").className="pill wait";$("pillSrc").textContent="लोड…";
+  $("pathSrc").textContent=url;
+  $("waveSrc").querySelector(".hint").textContent="लोड हो रहा…";
+  $("playBtn").disabled=true;$("btnRender").disabled=true;
+  $("metSrc").innerHTML="";srcBuf=null;srcInfo=null;
+  drawWave("waveSrc",null,null);
+  log("लोड: "+label);
+  fetch(url+(url.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"})
+    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.arrayBuffer();})
+    .then(decodeAB)
+    .then(function(buf){adopt(buf,label);})
+    .catch(function(e){
+      $("pillSrc").className="pill bad";$("pillSrc").textContent="नहीं मिली";
+      $("waveSrc").querySelector(".hint").textContent="फ़ाइल नहीं मिली · "+(e&&e.message);
+      $("metSrc").innerHTML='<div class="metric bad" style="grid-column:1/-1"><span>त्रुटि ERROR</span><b style="font-size:11px">'+(e&&e.message||"load failed")+'</b></div>';
+      setVerdict("bad","फ़ाइल नहीं मिली · FILE NOT FOUND",
+        "Could not fetch "+label+" ("+(e&&e.message||"failed")+").",
+        "Use the DROP A FILE source and load the recording from your computer instead — cleaning works identically on a local file.");
+      log("लोड विफल · "+(e&&e.message),"e");
+    });
+}
+function loadLocal(f){
+  if(!f)return;
+  S.src="local";setSrcUI();stop();resetOut();
+  $("pillSrc").className="pill wait";$("pillSrc").textContent="लोड…";
+  $("pathSrc").textContent=f.name+" · "+(f.size/1024).toFixed(0)+" KB";
+  $("waveSrc").querySelector(".hint").textContent="डिकोड हो रहा…";
+  $("playBtn").disabled=true;$("btnRender").disabled=true;
+  log("लोकल फ़ाइल: "+f.name);
+  f.arrayBuffer().then(decodeAB).then(function(buf){adopt(buf,f.name);})
+   .catch(function(e){
+     $("pillSrc").className="pill bad";$("pillSrc").textContent="त्रुटि";
+     $("waveSrc").querySelector(".hint").textContent="यह फ़ाइल डिकोड नहीं हुई";
+     setVerdict("bad","डिकोड विफल · DECODE FAILED","This file could not be decoded in the browser.","Export it as MP3 or WAV and try again. "+(e&&e.message||""));
+     log("डिकोड विफल","e");
+   });
+}
+function currentURL(){return S.src==="mix"?MIX_URL:OLD_URL;}
+function reload(){if(S.src==="local"){loadLocal($("file").files&&$("file").files[0]);}else{loadURL(currentURL(),S.src==="mix"?"अपलोड मिक्स":"पुरानी फ़िल्म फ़ाइल");}}
+
+function bindRange(id,out,key,after){
+  var r=$(id),o=$(out);
+  r.addEventListener("input",function(){
+    S[key]=+r.value;o.textContent=r.value;
+    if(key==="vol"&&master)master.gain.setTargetAtTime(S.muted?0:S.vol/100,ctx.currentTime,.03);
+    if(after)after();
+  });
+}
+bindRange("rRed","oRed","red");bindRange("rClar","oClar","clar");
+bindRange("rComp","oComp","comp");bindRange("rOut","oOut","out");bindRange("rVol","oVol","vol");
+
+$("tgMono").addEventListener("click",function(){S.mono=!S.mono;this.setAttribute("aria-pressed",String(S.mono));});
+$("tgLoop").addEventListener("click",function(){S.loop=!S.loop;this.setAttribute("aria-pressed",String(S.loop));if(node)node.loop=S.loop;});
+$("muteBtn").addEventListener("click",function(){
+  S.muted=!S.muted;this.classList.toggle("off",S.muted);this.setAttribute("aria-pressed",String(S.muted));
+  $("muteLbl").textContent=S.muted?"ध्वनि OFF · MUTED":"ध्वनि ON · SOUND ON";
+  if(master)master.gain.setTargetAtTime(S.muted?0:S.vol/100,ctx.currentTime,.03);
+});
+$("playBtn").addEventListener("click",function(){play();});
+$("abA").addEventListener("click",function(){setAB("A");});
+$("abB").addEventListener("click",function(){setAB("B");});
+$("btnRender").addEventListener("click",render);
+$("btnReload").addEventListener("click",reload);
+$("btnReset").addEventListener("click",function(){
+  S.red=65;S.clar=70;S.comp=45;S.out=0;S.vol=80;S.mono=true;S.loop=false;
+  $("rRed").value=65;$("oRed").textContent="65";
+  $("rClar").value=70;$("oClar").textContent="70";
+  $("rComp").value=45;$("oComp").textContent="45";
+  $("rOut").value=0;$("oOut").textContent="0";
+  $("rVol").value=80;$("oVol").textContent="80";
+  $("tgMono").setAttribute("aria-pressed","true");$("tgLoop").setAttribute("aria-pressed","false");
+  if(node)node.loop=false;
+  if(master)master.gain.setTargetAtTime(S.muted?0:S.vol/100,ctx.currentTime,.03);
+  log("डायल रीसेट");
+});
+$("dlBtn").addEventListener("click",function(){
+  if(!outBuf)return;
+  var chs=[],i;for(i=0;i<outBuf.numberOfChannels;i++)chs.push(outBuf.getChannelData(i));
+  var blob=wavBlob(chs,outBuf.sampleRate),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=DL_NAME;a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+  log("डाउनलोड: "+DL_NAME+" · "+(blob.size/1024/1024).toFixed(2)+" MB","s");
+  setVerdict("good","डाउनलोड हो गया · DOWNLOADED",
+    DL_NAME+" is in your Downloads folder.",
+    "Now follow the four steps below: upload it to public/audio, change the one line in timeline.ts, commit, then Publish → Update.");
+});
+$("srcOld").addEventListener("click",function(){S.src="old";setSrcUI();loadURL(OLD_URL,"पुरानी फ़िल्म फ़ाइल");});
+$("srcMix").addEventListener("click",function(){S.src="mix";setSrcUI();loadURL(MIX_URL,"अपलोड किया मिक्स");});
+$("srcLocal").addEventListener("click",function(){S.src="local";setSrcUI();$("pathSrc").textContent="कोई लोकल फ़ाइल चुनें";});
+var drop=$("drop"),file=$("file");
+drop.addEventListener("click",function(){file.click();});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();file.click();}});
+file.addEventListener("change",function(){if(this.files&&this.files[0])loadLocal(this.files[0]);});
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("over");});});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("over");});});
+drop.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)loadLocal(f);});
+["waveSrc","waveOut"].forEach(function(id){
+  $(id).addEventListener("click",function(e){
+    var isOut=id==="waveOut",buf=isOut?outBuf:srcBuf,info=isOut?outInfo:srcInfo;
+    if(!buf)return;
+    if(isOut&&S.ab!=="B")setAB("B");
+    if(!isOut&&S.ab!=="A")setAB("A");
+    var r=this.getBoundingClientRect();
+    play(clamp((e.clientX-r.left)/r.width,0,1)*info.dur);
+  });
+});
+document.addEventListener("keydown",function(e){
+  var tag=(e.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="select"||tag==="textarea")return;
+  if(e.key===" "){e.preventDefault();play();}
+  else if(e.key==="b"||e.key==="B"){setAB(S.ab==="A"?"B":"A");}
+  else if(e.key==="m"||e.key==="M"){$("muteBtn").click();}
+  else if(e.key==="r"||e.key==="R"){if(!$("btnRender").disabled)render();}
+});
+var rz;window.addEventListener("resize",function(){clearTimeout(rz);rz=setTimeout(function(){
+  drawWave("waveSrc",srcBuf,srcInfo);drawWave("waveOut",outBuf,outInfo);},140);});
+
+function frame(){
+  requestAnimationFrame(frame);
+  drawSpec();
+  if(playing){
+    var b=activeBuf();
+    if(b){
+      var p=pos();
+      $("tc").textContent=fmt(p)+" / "+fmt(b.duration);
+      drawWave(S.ab==="B"?"waveOut":"waveSrc",b,S.ab==="B"?outInfo:srcInfo);
+      if(!S.loop&&p>=b.duration-.02)stop();
+    }
+  }
+}
+requestAnimationFrame(frame);
+
+setSrcUI();
+log("ध्वनि सफ़ाई बूथ तैयार","s");
+loadURL(OLD_URL,"पुरानी फ़िल्म फ़ाइल");
+})();
+</script>
+</body>
+</html>
