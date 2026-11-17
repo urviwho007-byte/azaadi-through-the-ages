@@ -26,7 +26,7 @@ export const VOICES: VoiceDef[] = [
   { key: "urvi", url: urviAsset.url, reel: 0, lead: 6, tail: 0.3, defDur: 33.19 },
   { key: "yashashvi", url: yashAsset.url, reel: 1, lead: 2, tail: 0.3, defDur: 39.82 },
   { key: "shubhi", url: shubhiAsset.url, reel: 2, lead: 1, tail: 0.3, defDur: 46.4 },
-  { key: "prince", url: "/audio/prince-questions-mix.mp3.mp3", reel: 3, lead: 1.5, tail: 1, defDur: 38.9 },
+  { key: "prince", url: "prince-questions-mix.mp3.mp3", reel: 3, lead: 1.5, tail: 1, defDur: 38.9 },
   { key: "amritansh", url: amritAsset.url, reel: 4, lead: 1, tail: 0.3, defDur: 39.57 },
   { key: "satyam", url: satyamAsset.url, reel: 5, lead: 1, tail: 0.3, defDur: 54.63 },
   { key: "finale", url: finaleAsset.url, reel: 6, lead: 0.3, tail: 0.3, defDur: 13.33 },
