@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, expect, it } from "vitest";
 import { buildTimeline, CAP_DATA, VOICES } from "@/film/timeline";
 
