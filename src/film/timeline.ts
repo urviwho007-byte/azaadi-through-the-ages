@@ -8,6 +8,7 @@ import radioAsset from "@/assets/audio/radio_turning_on.mp3.asset.json";
 import urviAsset from "@/assets/audio/urvi_audio_announcement.mp3.asset.json";
 import yashAsset from "@/assets/audio/yashashvi_the_search.mp3.asset.json";
 import shubhiAsset from "@/assets/audio/shubhi_audio_the_invisible_walls.m4a.asset.json";
+import princeAsset from "@/assets/audio/prince_audio_the_questions_clean.mp3.asset.json";
 import amritAsset from "@/assets/audio/amritansh_audio_the_realisation.m4a.asset.json";
 import satyamAsset from "@/assets/audio/satyam_audio_ending_clean.mp3.asset.json";
 import finaleAsset from "@/assets/audio/last_13_seconds.mp3.asset.json";
