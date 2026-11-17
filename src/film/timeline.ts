@@ -8,26 +8,29 @@ import radioAsset from "@/assets/audio/radio_turning_on.mp3.asset.json";
 import urviAsset from "@/assets/audio/urvi_audio_announcement.mp3.asset.json";
 import yashAsset from "@/assets/audio/yashashvi_the_search.mp3.asset.json";
 import shubhiAsset from "@/assets/audio/shubhi_audio_the_invisible_walls.m4a.asset.json";
-import princeAsset from "@/assets/audio/prince_audio_the_questions.mp3.asset.json";
+import princeAsset from "@/assets/audio/prince_audio_the_questions_clean.mp3.asset.json";
 import amritAsset from "@/assets/audio/amritansh_audio_the_realisation.m4a.asset.json";
-import satyamAsset from "@/assets/audio/satyam_audio_ending.m4a.asset.json";
+import satyamAsset from "@/assets/audio/satyam_audio_ending_clean.mp3.asset.json";
+import finaleAsset from "@/assets/audio/last_13_seconds.mp3.asset.json";
 
-/** Reel boundaries on the picture timeline (seconds). Reel 7 (index 6) has no recording. */
+/** Reel boundaries on the picture timeline (seconds). */
 export const PIC_REELS = [0, 30, 60, 95, 135, 170, 215, 225];
 /** Picture time of the finale burst and the end of the picture. */
 export const PIC_BURST = 223.4;
 
 export type VoiceDef = { key: string; url: string; reel: number; lead: number; tail: number; defDur: number };
-/** One recorded dialogue file per reel 1–6. lead/tail = the intentional pause before/after the recording,
+/** One recorded dialogue file per reel (reel 7 = the "last 13 seconds" recording, which ends at the finale burst).
+    Reels 4 and 6 use cleaned re-masters (denoised, de-clipped, levelled; same length and timing as the originals). lead/tail = the intentional pause before/after the recording,
     taken from the gaps the picture timeline already had around each reel's lines. defDur = measured length,
     used only until the browser has decoded the real file. */
 export const VOICES: VoiceDef[] = [
   { key: "urvi", url: urviAsset.url, reel: 0, lead: 6, tail: 0.3, defDur: 33.19 },
   { key: "yashashvi", url: yashAsset.url, reel: 1, lead: 2, tail: 0.3, defDur: 39.82 },
   { key: "shubhi", url: shubhiAsset.url, reel: 2, lead: 1, tail: 0.3, defDur: 46.4 },
-  { key: "prince", url: princeAsset.url, reel: 3, lead: 1.5, tail: 1, defDur: 38.96 },
+  { key: "prince", url: princeAsset.url, reel: 3, lead: 1.5, tail: 1, defDur: 38.9 },
   { key: "amritansh", url: amritAsset.url, reel: 4, lead: 1, tail: 0.3, defDur: 39.57 },
-  { key: "satyam", url: satyamAsset.url, reel: 5, lead: 1, tail: 0.3, defDur: 54.66 },
+  { key: "satyam", url: satyamAsset.url, reel: 5, lead: 1, tail: 0.3, defDur: 54.63 },
+  { key: "finale", url: finaleAsset.url, reel: 6, lead: 0.3, tail: 0.3, defDur: 13.33 },
 ];
 export const RADIO = { key: "radio", url: radioAsset.url, defDur: 72.57 };
 
@@ -36,8 +39,7 @@ export const OPENING_LEAD = 6;
 /** …the static keeps going under the first words for this long, then fades out over STATIC_FADE seconds. */
 export const STATIC_FADE_DELAY = 1.2;
 export const STATIC_FADE = 1.5;
-/** Reel 7 (no recording): length of its lines block and the black tail after the burst, in film seconds. */
-export const FIN_LEN = 12.5;
+/** Black tail after the finale burst (film seconds). The burst lands right after the reel 7 recording ends. */
 export const END_TAIL = 1.6;
 /** Subtitles stay up this long after the words finish (never past the next line). */
 export const HOLD = 0.6;
@@ -47,7 +49,7 @@ export type CapDef = {
   m?: string; hi: string; hw?: string; en: string;
 };
 /** Subtitles: p0/p1 = picture time; v/a0/a1 = recording index and where the words start/end inside it (s);
-    o0/o1 = offsets from the start of reel 7 for the finale lines (no recording). Text is unchanged. */
+    Text is unchanged. */
 export const CAP_DATA: CapDef[] = [
  {p0:6.0,p1:8.0,v:0,a0:0.3,a1:2.46,hi:"Yeh ek zaroori elaan hai.",en:""},
  {p0:8.5,p1:10.5,v:0,a0:3.36,a1:5.06,hi:"Ek cheez gumshuda hai.",en:""},
@@ -107,12 +109,12 @@ export const CAP_DATA: CapDef[] = [
  {p0:204.5,p1:206.0,v:5,a0:39.12,a1:40.3,hi:"Ek zimmedari hai.",en:""},
  {p0:206.5,p1:211.0,v:5,a0:41.78,a1:47.5,hi:"Ek aisa haq hai, jise har roz jeena aur har roz bachana padta hai.",en:""},
  {p0:211.5,p1:214.8,v:5,a0:49.04,a1:54.06,hi:"Aur shayad... isi liye uski talaash kabhi khatam nahi hoti.",en:""},
- {p0:215.0,p1:216.4,o0:0.0,o1:2.5,m:"fin",hi:"Azaadi sirf ek lafz nahi...",en:""},
- {p0:216.4,p1:217.8,o0:2.5,o1:4.5,m:"fin",hi:"Yeh ek khwaab hai.",en:""},
- {p0:217.8,p1:219.2,o0:4.5,o1:6.5,m:"fin",hi:"Ek awaaz hai.",en:""},
- {p0:219.2,p1:220.6,o0:6.5,o1:8.5,m:"fin",hi:"Ek sawaal hai.",en:""},
- {p0:220.6,p1:222.0,o0:8.5,o1:10.5,m:"fin",hi:"Ek haq hai.",en:""},
- {p0:222.0,p1:223.4,o0:10.5,o1:12.5,m:"fin",hi:"Aur ek zimmedari bhi.",en:""}
+ {p0:215.0,p1:216.4,v:6,a0:0.66,a1:2.7,m:"fin",hi:"Azaadi sirf ek lafz nahi...",en:""},
+ {p0:216.4,p1:217.8,v:6,a0:3.47,a1:5.18,m:"fin",hi:"Yeh ek khwaab hai.",en:""},
+ {p0:217.8,p1:219.2,v:6,a0:5.97,a1:7.16,m:"fin",hi:"Ek awaaz hai.",en:""},
+ {p0:219.2,p1:220.6,v:6,a0:7.56,a1:8.47,m:"fin",hi:"Ek sawaal hai.",en:""},
+ {p0:220.6,p1:222.0,v:6,a0:9.3,a1:10.03,m:"fin",hi:"Ek haq hai.",en:""},
+ {p0:222.0,p1:223.4,v:6,a0:11.0,a1:12.15,m:"fin",hi:"Aur ek zimmedari bhi.",en:""}
 ];
 
 export type Cap = CapDef & { t0: number; t1: number };
@@ -132,24 +134,21 @@ export function buildTimeline(voiceDurs: number[], staticDur: number): Timeline 
     vStart[r] = t + (r === 0 ? lead0 : v.lead);
     t = vStart[r] + vDur[r] + v.tail;
   });
-  R0[6] = t;
-  const burst = t + FIN_LEN;
+  const burst = t;
   const DUR = burst + END_TAIL;
   const staticFadeStart = vStart[0] + STATIC_FADE_DELAY;
   const staticFadeEnd = staticFadeStart + STATIC_FADE;
 
   const caps: Cap[] = CAP_DATA.map((c) => {
-    if (c.v != null) return { ...c, t0: vStart[c.v] + (c.a0 as number), t1: vStart[c.v] + (c.a1 as number) };
-    return { ...c, t0: R0[6] + (c.o0 as number), t1: R0[6] + (c.o1 as number) };
+    return { ...c, t0: vStart[c.v as number] + (c.a0 as number), t1: vStart[c.v as number] + (c.a1 as number) };
   });
   caps.forEach((c, i) => {
-    if (c.v == null) return;
     const nx = caps[i + 1];
     const sameVoice = nx && nx.v === c.v;
-    const limit = sameVoice ? nx.t0 - 0.05 : R0[c.v + 1] - 0.05;
+    const limit = sameVoice ? nx.t0 - 0.05 : (c.v + 1 < R0.length ? R0[c.v + 1] : burst) - 0.05;
     c.t1 = c.m === "hand" ? limit : Math.min(c.t1 + HOLD, limit);
     // keep picture strictly ahead of film gaps so drawings never freeze between lines
-    const nextPic = sameVoice ? nx.p0 : PIC_REELS[c.v + 1];
+    const nextPic = sameVoice ? nx.p0 : c.v === 6 ? PIC_BURST : PIC_REELS[c.v + 1];
     if (nextPic - c.p1 < 0.2) c.p1 = Math.max(c.p0 + 0.1, nextPic - 0.25);
   });
 
