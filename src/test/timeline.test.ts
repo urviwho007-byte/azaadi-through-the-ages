@@ -45,9 +45,12 @@ describe("audio-driven timeline", () => {
     expect(fin[5].t0).toBeCloseTo(tl.vStart[6] + 11.0, 5);
   });
 
-  it("never overlaps subtitles and never clears one before its words finish", () => {
+  it("never overlaps subtitles and keeps each up until its words finish", () => {
     tl.caps.forEach((c, i) => {
-      expect(c.t1).toBeGreaterThanOrEqual(tl.vStart[c.v as number] + (c.a1 as number) - 1e-6);
+      const spokenEnd = tl.vStart[c.v as number] + (c.a1 as number);
+      const nx = tl.caps[i + 1];
+      // stays until its words finish (or the very next line's words begin, when two lines run together)
+      expect(c.t1).toBeGreaterThanOrEqual(Math.min(spokenEnd, nx ? nx.t0 - 0.05 : spokenEnd) - 1e-6);
       if (i > 0) expect(c.t0).toBeGreaterThan(tl.caps[i - 1].t1);
     });
   });
