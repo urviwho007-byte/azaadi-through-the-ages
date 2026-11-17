@@ -206,7 +206,7 @@ const AUD={ready:false,vox:VOICES.map(v=>({...v,buf:null,dur:0,gain:1,start:0,no
 let stat=null,clk=null,stallT=0,hidPaused=false,duckOn=false;
 const radioOK=()=>!!AUD.radio.buf;
 function decodeAB(ctx,ab){return new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej);});}
-function levelGain(buf,target,maxG){const d=buf.getChannelData(0),hop=Math.floor(buf.sampleRate*.02),fr=[];for(let i=0;i+hop<=d.length;i+=hop){let q=0;for(let j=i;j<i+hop;j++)q+=d[j]*d[j];fr.push(Math.sqrt(q/hop));}fr.sort((a,b)=>a-b);const p90=fr[Math.floor(fr.length*.9)]||.1;return clamp(target/p90,.3,maxG);}
+function levelGain(buf,target,maxG){const d=buf.getChannelData(0),hop=Math.floor(buf.sampleRate*.02),fr=[];let pk=0;for(let i=0;i+hop<=d.length;i+=hop){let q=0;for(let j=i;j<i+hop;j++){q+=d[j]*d[j];const a=d[j]<0?-d[j]:d[j];if(a>pk)pk=a;}fr.push(Math.sqrt(q/hop));}fr.sort((a,b)=>a-b);const p90=fr[Math.floor(fr.length*.9)]||.1;return clamp(Math.min(target/p90,pk>0?.85/pk:maxG),.3,maxG);} // never boost a recording into clipping
 function applyTimeline(){
  TL=buildTimeline(AUD.vox.map(v=>v.dur),AUD.radio.dur||RADIO.defDur);
  TMAP=TL.TMAP;DUR=TL.DUR;
