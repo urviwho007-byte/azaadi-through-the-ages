@@ -5,13 +5,13 @@
    Drawings stay on their original 225 s "picture" timeline; TMAP maps picture time -> film time so each drawn beat
    still lands on its line. Pure data + functions so it can be unit-tested. */
 import radioAsset from "@/assets/audio/radio_turning_on.mp3.asset.json";
-import urviAsset from "@/assets/audio/urvi_audio_announcement.mp3.asset.json";
-import yashAsset from "@/assets/audio/yashashvi_the_search.mp3.asset.json";
-import shubhiAsset from "@/assets/audio/shubhi_audio_the_invisible_walls.m4a.asset.json";
-import princeAsset from "@/assets/audio/prince_audio_the_questions_clean.mp3.asset.json";
-import amritAsset from "@/assets/audio/amritansh_audio_the_realisation.m4a.asset.json";
-import satyamAsset from "@/assets/audio/satyam_audio_ending_clean.mp3.asset.json";
-import finaleAsset from "@/assets/audio/last_13_seconds.mp3.asset.json";
+import urviAsset from "@/assets/audio/urvi_audio_announcement_denoised.mp3.asset.json";
+import yashAsset from "@/assets/audio/yashashvi_the_search_denoised.mp3.asset.json";
+import shubhiAsset from "@/assets/audio/shubhi_audio_the_invisible_walls_denoised.mp3.asset.json";
+import princeAsset from "@/assets/audio/prince_questions_mix_denoised.mp3.asset.json";
+import amritAsset from "@/assets/audio/amritansh_audio_the_realisation_denoised.mp3.asset.json";
+import satyamAsset from "@/assets/audio/satyam_audio_ending_denoised.mp3.asset.json";
+import finaleAsset from "@/assets/audio/last_13_seconds_denoised.mp3.asset.json";
 
 /** Reel boundaries on the picture timeline (seconds). */
 export const PIC_REELS = [0, 30, 60, 95, 135, 170, 215, 225];
@@ -20,17 +20,18 @@ export const PIC_BURST = 223.4;
 
 export type VoiceDef = { key: string; url: string; reel: number; lead: number; tail: number; defDur: number };
 /** One recorded dialogue file per reel (reel 7 = the "last 13 seconds" recording, which ends at the finale burst).
-    Reels 4 and 6 use cleaned re-masters (denoised, de-clipped, levelled; same length and timing as the originals). lead/tail = the intentional pause before/after the recording,
+    Every voice is a de-noised re-master (hum/hiss removed, levelled, soft words lifted; same length and timing as the original
+    take). Reel 4 is the user's "prince questions mix" take, which has identical word timing to the first prince recording. lead/tail = the intentional pause before/after the recording,
     taken from the gaps the picture timeline already had around each reel's lines. defDur = measured length,
     used only until the browser has decoded the real file. */
 export const VOICES: VoiceDef[] = [
   { key: "urvi", url: urviAsset.url, reel: 0, lead: 6, tail: 0.3, defDur: 33.19 },
-  { key: "yashashvi", url: yashAsset.url, reel: 1, lead: 2, tail: 0.3, defDur: 39.82 },
-  { key: "shubhi", url: shubhiAsset.url, reel: 2, lead: 1, tail: 0.3, defDur: 46.4 },
-  { key: "prince", url: "/audio/prince-questions-mix.mp3.mp3", reel: 3, lead: 1.5, tail: 1, defDur: 38.9 },
-  { key: "amritansh", url: amritAsset.url, reel: 4, lead: 1, tail: 0.3, defDur: 39.57 },
+  { key: "yashashvi", url: yashAsset.url, reel: 1, lead: 2, tail: 0.3, defDur: 39.74 },
+  { key: "shubhi", url: shubhiAsset.url, reel: 2, lead: 1, tail: 0.3, defDur: 46.36 },
+  { key: "prince", url: princeAsset.url, reel: 3, lead: 1.5, tail: 1, defDur: 38.93 },
+  { key: "amritansh", url: amritAsset.url, reel: 4, lead: 1, tail: 0.3, defDur: 39.53 },
   { key: "satyam", url: satyamAsset.url, reel: 5, lead: 1, tail: 0.3, defDur: 54.63 },
-  { key: "finale", url: finaleAsset.url, reel: 6, lead: 0.3, tail: 0.3, defDur: 13.33 },
+  { key: "finale", url: finaleAsset.url, reel: 6, lead: 0.3, tail: 0.3, defDur: 13.3 },
 ];
 export const RADIO = { key: "radio", url: radioAsset.url, defDur: 72.57 };
 

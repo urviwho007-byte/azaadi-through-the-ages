@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { describe, expect, it } from "vitest";
-import { buildTimeline, CAP_DATA, VOICES } from "@/film/timeline";
+import { buildTimeline, CAP_DATA, RADIO, VOICES } from "@/film/timeline";
 
 const durs = VOICES.map((v) => v.defDur);
 const tl = buildTimeline(durs, 72.57);
@@ -17,14 +17,20 @@ describe("audio-driven timeline", () => {
     expect(CAP_DATA.find((c) => c.m === "hand")?.hw).toBe("Kya tum azaad ho?");
   });
 
-  it("plays the cleaned recordings for reels 4 and 6", () => {
-    expect(VOICES[3].url).toContain("prince_audio_the_questions_clean.mp3");
-    expect(VOICES[5].url).toContain("satyam_audio_ending_clean.mp3");
+  it("plays the new 'prince questions mix' take in reel 4", () => {
+    expect(VOICES[3].reel).toBe(3);
+    expect(VOICES[3].url).toContain("prince_questions_mix_denoised.mp3");
+  });
+
+  it("plays a de-noised copy of every voice, and the radio static untouched", () => {
+    VOICES.forEach((v) => expect(v.url).toMatch(/_denoised\.mp3$/));
+    expect(RADIO.url).toContain("radio_turning_on.mp3");
+    expect(RADIO.url).not.toContain("denoised");
   });
 
   it("plays the 'last 13 seconds' recording in reel 7", () => {
     expect(VOICES[6].reel).toBe(6);
-    expect(VOICES[6].url).toContain("last_13_seconds.mp3");
+    expect(VOICES[6].url).toContain("last_13_seconds_denoised.mp3");
   });
 
   it("puts the finale burst right after the reel 7 recording ends", () => {
