@@ -8,7 +8,7 @@ import radioAsset from "@/assets/audio/radio_turning_on.mp3.asset.json";
 import urviAsset from "@/assets/audio/urvi_audio_announcement_denoised.mp3.asset.json";
 import yashAsset from "@/assets/audio/yashashvi_the_search_denoised.mp3.asset.json";
 import shubhiAsset from "@/assets/audio/shubhi_audio_the_invisible_walls_denoised.mp3.asset.json";
-import princeAsset from "@/assets/audio/prince_questions_mix_denoised.mp3.asset.json";
+import princeAsset from "@/assets/audio/prince_reel4_rec11_denoised.mp3.asset.json";
 import amritAsset from "@/assets/audio/amritansh_audio_the_realisation_denoised.mp3.asset.json";
 import satyamAsset from "@/assets/audio/satyam_audio_ending_denoised.mp3.asset.json";
 import finaleAsset from "@/assets/audio/last_13_seconds_denoised.mp3.asset.json";
@@ -21,14 +21,14 @@ export const PIC_BURST = 223.4;
 export type VoiceDef = { key: string; url: string; reel: number; lead: number; tail: number; defDur: number };
 /** One recorded dialogue file per reel (reel 7 = the "last 13 seconds" recording, which ends at the finale burst).
     Every voice is a de-noised re-master (hum/hiss removed, levelled, soft words lifted; same length and timing as the original
-    take). Reel 4 is the user's "prince questions mix" take, which has identical word timing to the first prince recording. lead/tail = the intentional pause before/after the recording,
+    take). Reel 4 is the user's newer reel 4 recording ("Standard recording 11", 33.94 s), with its own word timings below. lead/tail = the intentional pause before/after the recording,
     taken from the gaps the picture timeline already had around each reel's lines. defDur = measured length,
     used only until the browser has decoded the real file. */
 export const VOICES: VoiceDef[] = [
   { key: "urvi", url: urviAsset.url, reel: 0, lead: 6, tail: 0.3, defDur: 33.19 },
   { key: "yashashvi", url: yashAsset.url, reel: 1, lead: 2, tail: 0.3, defDur: 39.74 },
   { key: "shubhi", url: shubhiAsset.url, reel: 2, lead: 1, tail: 0.3, defDur: 46.36 },
-  { key: "prince", url: princeAsset.url, reel: 3, lead: 1.5, tail: 1, defDur: 38.93 },
+  { key: "prince", url: princeAsset.url, reel: 3, lead: 1.5, tail: 1, defDur: 33.94 },
   { key: "amritansh", url: amritAsset.url, reel: 4, lead: 1, tail: 0.3, defDur: 39.53 },
   { key: "satyam", url: satyamAsset.url, reel: 5, lead: 1, tail: 0.3, defDur: 54.63 },
   { key: "finale", url: finaleAsset.url, reel: 6, lead: 0.3, tail: 0.3, defDur: 13.3 },
@@ -80,14 +80,14 @@ export const CAP_DATA: CapDef[] = [
  {p0:87.0,p1:89.0,v:2,a0:33.6,a1:35.72,hi:"Aakhir azaadi ka matlab kya hai?",en:""},
  {p0:89.5,p1:91.5,v:2,a0:36.5,a1:40.3,hi:"Kya sirf zanjeeron ka na hona azaadi hai?",en:""},
  {p0:92.0,p1:95.0,v:2,a0:40.64,a1:46.04,hi:"Ya phir apne khwaabon ko bina dare jee paana bhi zaroori hai?",en:""},
- {p0:96.5,p1:99.0,v:3,a0:0.02,a1:2.44,hi:"Humne logon se poochna chaha...",en:""},
- {p0:99.5,p1:102.0,v:3,a0:2.8,a1:3.84,m:"hand",hw:"Kya tum azaad ho?",hi:"",en:""},
- {p0:102.5,p1:106.5,v:3,a0:4.78,a1:8.87,hi:"Lekin jawaab dene se pehle hi kai chehre khamosh ho gaye.",en:""},
- {p0:107.0,p1:111.5,v:3,a0:9.2,a1:13.66,hi:"Kisi ke paas kehne ko bahut kuch tha, par sunne wala koi nahi.",en:""},
- {p0:112.0,p1:116.5,v:3,a0:14.25,a1:18.51,hi:"Kisi ke paas sapne the, par unhe poora karne ke mauke nahi.",en:""},
- {p0:117.0,p1:121.5,v:3,a0:19.22,a1:23.27,hi:"Kisi ke paas apni marzi thi, par faisle karne ka haq nahi.",en:""},
- {p0:122.0,p1:127.5,v:3,a0:23.88,a1:28.58,hi:"Aur kisi ke paas sab kuch tha... bas khud ko chunne ki himmat nahi.",en:""},
- {p0:128.0,p1:134.0,v:3,a0:29.4,a1:37.55,m:"hand",hw:"Shayad azaadi ek aisi cheez hai, jise har insaan mehsoos toh karta hai, par har insaan jee nahi paata.",hi:"",en:""},
+ {p0:96.5,p1:99.0,v:3,a0:0.15,a1:2.05,hi:"Humne logon se poochna chaha...",en:""},
+ {p0:99.5,p1:102.0,v:3,a0:2.6,a1:3.68,m:"hand",hw:"Kya tum azaad ho?",hi:"",en:""},
+ {p0:102.5,p1:106.5,v:3,a0:4.25,a1:7.7,hi:"Lekin jawaab dene se pehle hi kai chehre khamosh ho gaye.",en:""},
+ {p0:107.0,p1:111.5,v:3,a0:8.45,a1:12.3,hi:"Kisi ke paas kehne ko bahut kuch tha, par sunne wala koi nahi.",en:""},
+ {p0:112.0,p1:116.5,v:3,a0:12.72,a1:16.65,hi:"Kisi ke paas sapne the, par unhe poora karne ke mauke nahi.",en:""},
+ {p0:117.0,p1:121.5,v:3,a0:17.2,a1:20.8,hi:"Kisi ke paas apni marzi thi, par faisle karne ka haq nahi.",en:""},
+ {p0:122.0,p1:127.5,v:3,a0:21.2,a1:25.55,hi:"Aur kisi ke paas sab kuch tha... bas khud ko chunne ki himmat nahi.",en:""},
+ {p0:128.0,p1:134.0,v:3,a0:25.95,a1:32.95,m:"hand",hw:"Shayad azaadi ek aisi cheez hai, jise har insaan mehsoos toh karta hai, par har insaan jee nahi paata.",hi:"",en:""},
  {p0:136.0,p1:138.5,v:4,a0:3.1,a1:5.9,hi:"Phir ek din hum ruk gaye.",en:""},
  {p0:139.0,p1:140.5,v:4,a0:5.92,a1:8.66,hi:"Aur socha...",en:""},
  {p0:141.0,p1:144.0,v:4,a0:9.8,a1:11.86,hi:"Kya hum azaadi ko galat jagah dhoond rahe the?",en:""},

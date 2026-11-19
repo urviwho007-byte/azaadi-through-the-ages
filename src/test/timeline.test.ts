@@ -17,9 +17,15 @@ describe("audio-driven timeline", () => {
     expect(CAP_DATA.find((c) => c.m === "hand")?.hw).toBe("Kya tum azaad ho?");
   });
 
-  it("plays the new 'prince questions mix' take in reel 4", () => {
+  it("plays the newest reel 4 recording, timed to its own length", () => {
     expect(VOICES[3].reel).toBe(3);
-    expect(VOICES[3].url).toContain("prince_questions_mix_denoised.mp3");
+    expect(VOICES[3].url).toContain("prince_reel4_rec11_denoised.mp3");
+    expect(VOICES[3].defDur).toBeCloseTo(33.94, 2);
+    // reel 4 ends 1 s after the recording finishes, and reel 5 starts right there
+    expect(tl.R0[4]).toBeCloseTo(tl.vStart[3] + 33.94 + 1, 5);
+    const r4 = tl.caps.filter((c) => c.v === 3);
+    expect(r4[0].t0).toBeCloseTo(tl.vStart[3] + 0.15, 5);
+    expect(r4[7].t0).toBeCloseTo(tl.vStart[3] + 25.95, 5);
   });
 
   it("plays a de-noised copy of every voice, and the radio static untouched", () => {
